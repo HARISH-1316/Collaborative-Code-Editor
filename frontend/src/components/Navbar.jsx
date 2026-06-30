@@ -1,0 +1,138 @@
+import {
+  Avatar,
+  AvatarGroup,
+  Badge,
+  Box,
+  Button,
+  Divider,
+  Flex,
+  HStack,
+  Spacer,
+  Text,
+  Tooltip,
+} from "@chakra-ui/react";
+import { IconButton } from "@chakra-ui/react";
+// import { FiLogOut } from "react-icons/fi";
+
+const Navbar = ({ roomName, roomId, owner, users = [] }) => {
+  return (
+    <Box
+      bg="gray.900"
+      color="white"
+      px={8}
+      py={4}
+      borderBottom="1px solid"
+      borderColor="gray.700"
+      shadow="md"
+    >
+      <Flex align="center">
+        {/* Left */}
+        <HStack spacing={6}>
+          <Box>
+            <Text
+              fontSize="xs"
+              color="gray.400"
+              textTransform="uppercase"
+              letterSpacing="1px"
+            >
+              Room
+            </Text>
+
+            <Text fontSize="lg" fontWeight="bold">
+              {roomName}
+            </Text>
+          </Box>
+
+          <Divider orientation="vertical" h="40px" borderColor="gray.700" />
+
+          <Box>
+            <Text
+              fontSize="xs"
+              color="gray.400"
+              textTransform="uppercase"
+              letterSpacing="1px"
+            >
+              Room ID
+            </Text>
+
+            <Badge
+              colorScheme="purple"
+              px={3}
+              py={1}
+              rounded="full"
+              fontSize="0.8rem"
+            >
+              {roomId}
+            </Badge>
+          </Box>
+
+          <Divider orientation="vertical" h="40px" borderColor="gray.700" />
+
+          <Box>
+            <Text
+              fontSize="xs"
+              color="gray.400"
+              textTransform="uppercase"
+              letterSpacing="1px"
+            >
+              Owner
+            </Text>
+
+            <Badge colorScheme="green" px={3} py={1} rounded="full">
+              👑 {owner}
+            </Badge>
+          </Box>
+        </HStack>
+
+        <Spacer />
+
+        {/* Right */}
+        <Spacer />
+
+        <HStack spacing={5}>
+          <Badge
+            colorScheme="green"
+            px={3}
+            py={1}
+            rounded="full"
+            fontSize="0.85rem"
+          >
+            🟢 {users.length} Online
+          </Badge>
+
+          <AvatarGroup size="md" max={5}>
+            {users.map((user) => (
+              <Tooltip key={user.id} label={user.name} hasArrow>
+                <Avatar
+                  name={user.name}
+                  border="2px solid"
+                  borderColor="gray.900"
+                />
+              </Tooltip>
+            ))}
+          </AvatarGroup>
+
+          <Divider orientation="vertical" h="36px" borderColor="gray.700" />
+
+          <Button
+            colorScheme="red"
+            variant="outline"
+            size="sm"
+            borderRadius="lg"
+            _hover={{
+              bg: "red.500",
+              color: "white",
+            }}
+            onClick={() => {
+              // Leave room logic here
+            }}
+          >
+            Leave Room
+          </Button>
+        </HStack>
+      </Flex>
+    </Box>
+  );
+};
+
+export default Navbar;
