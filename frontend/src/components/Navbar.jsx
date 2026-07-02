@@ -12,9 +12,31 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import { IconButton } from "@chakra-ui/react";
-// import { FiLogOut } from "react-icons/fi";
+import { useSocket } from "../SocketContext";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 const Navbar = ({ roomName, roomId, owner, users = [] }) => {
+  const socket = useSocket();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const onLeaveRoom = () => {
+      navigate(`/lobby`);
+    };
+
+    socket.on("leaveRoom", onLeaveRoom);
+
+    return () => {
+      socket.off("leaveRoom");
+    };
+  }, []);
+
+  const handleLeaveRoom = () => {
+    socket.emit("leaveRoom");
+  };
   return (
     <Box
       bg="gray.900"
@@ -102,12 +124,8 @@ const Navbar = ({ roomName, roomId, owner, users = [] }) => {
 
           <AvatarGroup size="md" max={5}>
             {users.map((user) => (
-              <Tooltip key={user.id} label={user.name} hasArrow>
-                <Avatar
-                  name={user.name}
-                  border="2px solid"
-                  borderColor="gray.900"
-                />
+              <Tooltip label={user} hasArrow>
+                <Avatar name={user} border="2px solid" borderColor="gray.900" />
               </Tooltip>
             ))}
           </AvatarGroup>
@@ -123,9 +141,7 @@ const Navbar = ({ roomName, roomId, owner, users = [] }) => {
               bg: "red.500",
               color: "white",
             }}
-            onClick={() => {
-              // Leave room logic here
-            }}
+            onClick={handleLeaveRoom}
           >
             Leave Room
           </Button>

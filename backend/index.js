@@ -19,7 +19,7 @@ io.on("connection", async (socket) => {
   console.log(`A user connected with ${socket.id}`);
 
   socket.on("roomState", (roomId) => {
-    const Room = ROOMS.find((Room) => Room.roomId == roomId);
+    const Room = ROOMS.find((room) => room.roomId == roomId);
 
     socket.emit("roomState", Room);
   });
@@ -27,7 +27,7 @@ io.on("connection", async (socket) => {
   socket.on("createRoom", ({ roomName, userName }) => {
     const roomId = ROOMS.length.toString();
     const Room = {
-      roomId: ROOMS.length.toString(),
+      roomId,
       roomName: roomName,
       roomOwner: userName,
     };
@@ -40,13 +40,22 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("joinRoom", ({ roomId, userName }) => {
-    const Room = ROOMS.find((Room) => Room.roomId === roomId);
+    const Room = ROOMS.find((room) => room.roomId == roomId);
     if (!Room) {
       //do something
     }
+
     socket.join(roomId);
 
+    socket.roomId = roomId;
+    socket.userName = userName;
+
     socket.emit("joinRoom", roomId);
+  });
+
+  socket.on("leaveRoom", () => {
+    socket.leave(socket.roomId);
+    socket.emit("leaveRoom");
   });
 
   socket.on("codeChange", ({ roomId, code }) => {
@@ -54,6 +63,14 @@ io.on("connection", async (socket) => {
     console.log(code);
     socket.to(roomId).emit("codeChange", code);
   });
+
+  // socket.on("disconnect", () => {
+  //   const Room = ROOMS.find((Room) => Room.roomId == socket.roomId);
+  //   Room.onlineUsers = Room.onlineUsers.filter(
+  //     (user) => user != socket.userName,
+  //   );
+  //   io.to(socket.roomId).emit("userLeft", { onlineUsers: Room.onlineUsers });
+  // });
 });
 
 app.get("/", (req, res) => {

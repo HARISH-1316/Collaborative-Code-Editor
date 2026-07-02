@@ -9,23 +9,31 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSocket } from "../SocketContext";
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Lobby = ({ userName }) => {
   const socket = useSocket();
+
   const [roomName, setRoomName] = useState("");
   const [roomId, setRoomId] = useState("");
+
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!socket) return;
-    socket.on("joinRoom", (roomId) => {
+
+    const handleJoinRoom = (roomId) => {
       navigate(`/editor/${roomId}`);
-    });
-  }, []);
+    };
+
+    socket.on("joinRoom", handleJoinRoom);
+
+    return () => {
+      socket.off("joinRoom", handleJoinRoom);
+    };
+  }, [socket, navigate]);
 
   const handleCreateRoom = () => {
     socket.emit("createRoom", { roomName, userName });

@@ -20,6 +20,7 @@ const CodeEditor = () => {
   const [language, setLanguage] = useState("javascript");
   const [roomOwner, setRoomOwner] = useState("");
   const [roomName, setRoomName] = useState("");
+  const [onlineUsers, setOnlineUsers] = useState([]);
 
   useEffect(() => {
     if (!socket) return;
@@ -27,17 +28,31 @@ const CodeEditor = () => {
     socket.emit("roomState", roomId);
 
     socket.on("roomState", (Room) => {
+      if (!Room) {
+        console.log("Room not found");
+        return;
+      }
+
       setRoomName(Room.roomName);
       setRoomOwner(Room.roomOwner);
     });
 
     socket.on("codeChange", (code) => {
-      console.log(code);
       isEdited.current = true;
       editorRef.current.setValue(code);
       setCode(code);
       isEdited.current = false;
     });
+
+    // socket.on("userLeft", (onlineUsers) => {
+    //   setOnlineUsers(onlineUsers);
+    // });
+
+    return () => {
+      socket.off("roomState");
+      socket.off("codeChange");
+      socket.off("userLeft");
+    };
   }, []);
 
   const onMount = (editor) => {
@@ -63,10 +78,7 @@ const CodeEditor = () => {
         roomName={roomName}
         roomId={roomId}
         owner={roomOwner}
-        users={[
-          { id: 1, name: "Harish" },
-          { id: 2, name: "Rahul" },
-        ]}
+        users={[]}
       />
 
       <Box
