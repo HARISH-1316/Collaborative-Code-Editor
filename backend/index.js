@@ -7,6 +7,21 @@ const server = createServer(app);
 
 const port = process.env.PORT || 3000;
 
+import session from "express-session";
+
+const sessionOptions = {
+  secret: "mySecretCode",
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    secure: false,
+    expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  },
+};
+
+app.use(session(sessionOptions));
+
 const io = new Server(server, {
   cors: {
     origin: "http://localhost:5173",
