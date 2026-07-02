@@ -5,8 +5,34 @@ import { Server } from "socket.io";
 const app = express();
 const server = createServer(app);
 
-const port = process.env.PORT || 3000;
+// CORS
+import cors from "cors";
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }),
+);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    credentials: true,
+  },
+});
 
+// Mongoose
+import mongoose from "mongoose";
+const DB_URL = "mongodb://127.0.0.1:27017/cce";
+mongoose
+  .connect(DB_URL)
+  .then(() => console.log("MongoDB connected successfully!"))
+  .catch((err) => console.log(err));
+
+// Middleware
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+// Sessions
 import session from "express-session";
 
 const sessionOptions = {
@@ -22,11 +48,25 @@ const sessionOptions = {
 
 app.use(session(sessionOptions));
 
-const io = new Server(server, {
-  cors: {
-    origin: "http://localhost:5173",
-  },
-});
+// Passport
+import User from "./Models/User.js";
+import passport from "passport";
+import LocalStrategy from "passport-local";
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+// Routers
+import userRouter from "./Routes/User.js";
+
+// Routes
+app.use("/", userRouter);
+
+const port = process.env.PORT || 3000;
 
 const ROOMS = [];
 
