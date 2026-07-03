@@ -41,6 +41,8 @@ const Login = () => {
       const response = await axios.post(url, user, { withCredentials: true });
       if (response.data.success) {
         navigate("/");
+      } else {
+        console.log("Wrong username/password");
       }
     } catch (err) {
       console.log(err);

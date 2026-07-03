@@ -16,6 +16,7 @@ export const postSignup = async (req, res, next) => {
     if (err) return next(err);
     req.session.save((err) => {
       if (err) return next(err);
+      console.log(req.session);
       res.json({
         success: true,
         message: "signup successful",
@@ -25,7 +26,6 @@ export const postSignup = async (req, res, next) => {
 };
 
 export const postLogin = async (req, res, next) => {
-  console.log("abc");
   req.session.save((err) => {
     if (err) return next(err);
     res.json({ success: true, message: "login successful" });

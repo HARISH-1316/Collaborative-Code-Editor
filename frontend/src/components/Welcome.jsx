@@ -9,9 +9,28 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Welcome = () => {
   const navigate = useNavigate();
+
+  const handleJoinLobby = async () => {
+    console.log("abc");
+    const url = "http://localhost:3000/lobby";
+    try {
+      const response = await axios.get(url, { withCredentials: true });
+      console.log(response.data);
+      if (response.data.success) {
+        console.log(response.data);
+        navigate("/lobby");
+      } else {
+        console.log("User not authenticated");
+        navigate("/login");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <Box minH="100vh" bg="gray.900" color="white">
@@ -80,7 +99,7 @@ const Welcome = () => {
             size="lg"
             colorScheme="purple"
             px={10}
-            onClick={() => navigate("/lobby")}
+            onClick={handleJoinLobby}
           >
             Enter Lobby
           </Button>

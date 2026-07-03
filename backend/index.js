@@ -62,9 +62,11 @@ passport.deserializeUser(User.deserializeUser());
 
 // Routers
 import userRouter from "./Routes/User.js";
+import roomRouter from "./Routes/Room.js";
 
 // Routes
 app.use("/", userRouter);
+app.use("/", roomRouter);
 
 const port = process.env.PORT || 3000;
 
