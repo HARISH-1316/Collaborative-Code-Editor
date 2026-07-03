@@ -15,28 +15,37 @@ import { IconButton } from "@chakra-ui/react";
 import { useSocket } from "../SocketContext";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { CopyIcon, CheckIcon } from "@chakra-ui/icons";
+import { useState } from "react";
 
 const Navbar = ({ roomName, roomId, owner, users = [] }) => {
   const socket = useSocket();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!socket) return;
-
-    const onLeaveRoom = () => {
-      navigate(`/lobby`);
-    };
-
-    socket.on("leaveRoom", onLeaveRoom);
-
-    return () => {
-      socket.off("leaveRoom");
-    };
-  }, []);
+  const [copied, setCopied] = useState(false);
 
   const handleLeaveRoom = () => {
-    socket.emit("leaveRoom");
+    socket.emit("leaveRoom", (response) => {
+      if (response.success) {
+        console.log(response.message);
+        navigate("/lobby");
+      }
+    });
   };
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(roomId);
+      setCopied(true);
+
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <Box
       bg="gray.900"
@@ -77,15 +86,31 @@ const Navbar = ({ roomName, roomId, owner, users = [] }) => {
               Room ID
             </Text>
 
-            <Badge
-              colorScheme="purple"
-              px={3}
-              py={1}
-              rounded="full"
-              fontSize="0.8rem"
-            >
-              {roomId}
-            </Badge>
+            <HStack spacing={2}>
+              <Badge
+                colorScheme="purple"
+                px={3}
+                py={1}
+                rounded="full"
+                fontSize="0.8rem"
+                cursor="pointer"
+                onClick={handleCopy}
+                _hover={{ opacity: 0.8 }}
+              >
+                {roomId}
+              </Badge>
+
+              <Tooltip label={copied ? "Copied!" : "Copy Room ID"} hasArrow>
+                <IconButton
+                  size="xs"
+                  icon={copied ? <CheckIcon /> : <CopyIcon />}
+                  aria-label="Copy Room ID"
+                  onClick={handleCopy}
+                  colorScheme={copied ? "green" : "purple"}
+                  variant="ghost"
+                />
+              </Tooltip>
+            </HStack>
           </Box>
 
           <Divider orientation="vertical" h="40px" borderColor="gray.700" />

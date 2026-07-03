@@ -2,12 +2,13 @@ import React, { useRef, useState } from "react";
 import Editor from "@monaco-editor/react";
 import { Box } from "@chakra-ui/react";
 import Split from "react-split";
-import LanguageSelector from "./LanguageSelector";
 import Output from "./Output";
 import { useSocket } from "../SocketContext";
 import { useEffect } from "react";
 import Navbar from "./Navbar";
 import { useParams } from "react-router-dom";
+import axios from "axios";
+import FileInfo from "./FileInfo";
 
 const CodeEditor = () => {
   const editorRef = useRef(null);
@@ -17,25 +18,41 @@ const CodeEditor = () => {
   const socket = useSocket();
 
   const [code, setCode] = useState("// Write your code here...");
-  const [language, setLanguage] = useState("javascript");
   const [roomOwner, setRoomOwner] = useState("");
   const [roomName, setRoomName] = useState("");
+  const [fileName, setFileName] = useState("");
+  const [language, setLanguage] = useState("");
   const [onlineUsers, setOnlineUsers] = useState([]);
 
   useEffect(() => {
-    if (!socket) return;
+    const getRoom = async () => {
+      const url = `http://localhost:3000/editor/${roomId}`;
 
-    socket.emit("roomState", roomId);
+      try {
+        const response = await axios.get(url, {
+          withCredentials: true,
+        });
 
-    socket.on("roomState", (Room) => {
-      if (!Room) {
-        console.log("Room not found");
-        return;
+        if (response.data.success) {
+          const { Room } = response.data;
+
+          setRoomName(Room.roomName);
+          setRoomOwner(Room.roomOwner);
+          setFileName(Room.fileName);
+          setLanguage(Room.language);
+        }
+      } catch (err) {
+        console.log(err);
       }
+    };
 
-      setRoomName(Room.roomName);
-      setRoomOwner(Room.roomOwner);
-    });
+    if (roomId) {
+      getRoom();
+    }
+  }, [roomId]);
+
+  useEffect(() => {
+    if (!socket) return;
 
     socket.on("codeChange", (code) => {
       isEdited.current = true;
@@ -44,14 +61,8 @@ const CodeEditor = () => {
       isEdited.current = false;
     });
 
-    // socket.on("userLeft", (onlineUsers) => {
-    //   setOnlineUsers(onlineUsers);
-    // });
-
     return () => {
-      socket.off("roomState");
       socket.off("codeChange");
-      socket.off("userLeft");
     };
   }, []);
 
@@ -66,10 +77,6 @@ const CodeEditor = () => {
         socket.emit("codeChange", { roomId, code: editor.getValue() });
       }, 100);
     });
-  };
-
-  const onSelect = (lang) => {
-    setLanguage(lang);
   };
 
   return (
@@ -109,7 +116,7 @@ const CodeEditor = () => {
             borderColor="gray.700"
             boxShadow="xl"
           >
-            <LanguageSelector language={language} onSelect={setLanguage} />
+            <FileInfo fileName={fileName} language={language} />
 
             <Editor
               height="calc(100% - 60px)"

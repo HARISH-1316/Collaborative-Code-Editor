@@ -10,6 +10,8 @@ import Lobby from "./components/Lobby";
 import Welcome from "./components/Welcome";
 import SignUp from "./components/SignUp";
 import Login from "./components/Login";
+import File from "./components/File";
+import Room from "./components/Room";
 
 const App = () => {
   return (
@@ -23,6 +25,8 @@ const App = () => {
           <Route path="/signup" element={<SignUp />}></Route>
 
           <Route path="/login" element={<Login />}></Route>
+
+          <Route path="/editor" element={<Room />}></Route>
 
           <Route path="/editor/:roomId" element={<CodeEditor />}></Route>
         </Routes>

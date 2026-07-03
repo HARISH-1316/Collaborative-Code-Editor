@@ -21,26 +21,20 @@ const Lobby = ({ userName }) => {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!socket) return;
-
-    const handleJoinRoom = (roomId) => {
-      navigate(`/editor/${roomId}`);
-    };
-
-    socket.on("joinRoom", handleJoinRoom);
-
-    return () => {
-      socket.off("joinRoom", handleJoinRoom);
-    };
-  }, [socket, navigate]);
-
   const handleCreateRoom = () => {
-    socket.emit("createRoom", { roomName, userName });
+    navigate("/editor");
   };
 
   const handleJoinRoom = () => {
-    socket.emit("joinRoom", { roomId, userName });
+    console.log("handleJoinRoom");
+    socket.emit("joinRoom", { roomId }, (response) => {
+      console.log(response);
+      if (response.success) {
+        navigate(`/editor/${roomId}`);
+      } else {
+        console.log(response.message);
+      }
+    });
   };
 
   return (
@@ -52,13 +46,13 @@ const Lobby = ({ userName }) => {
       justifyContent="center"
       px={4}
     >
-      <Container maxW="6xl">
-        <VStack spacing={3} mb={12}>
+      <Container maxW="4xl">
+        <VStack spacing={3} mb={10}>
           <Heading color="white" size="2xl">
             Collaborative IDE
           </Heading>
 
-          <Text color="gray.400" fontSize="lg">
+          <Text color="gray.400">
             Create a new room or join an existing one.
           </Text>
         </VStack>
@@ -82,31 +76,22 @@ const Lobby = ({ userName }) => {
               Start a new collaborative coding session.
             </Text>
 
-            <VStack spacing={4}>
-              <Input
-                placeholder="Room Name"
-                bg="gray.700"
-                color="white"
-                border="none"
-                value={roomName}
-                onChange={(e) => setRoomName(e.target.value)}
-              />
+            <br />
 
-              <Button
-                colorScheme="blue"
-                w="100%"
-                size="lg"
-                onClick={handleCreateRoom}
-              >
-                Create Room
-              </Button>
-            </VStack>
+            <Button
+              colorScheme="blue"
+              w="100%"
+              size="lg"
+              onClick={handleCreateRoom}
+            >
+              Create Room
+            </Button>
           </Box>
 
           <Divider
             orientation="vertical"
             display={{ base: "none", md: "block" }}
-            h="320px"
+            h="220px"
             borderColor="gray.700"
           />
 
@@ -125,7 +110,7 @@ const Lobby = ({ userName }) => {
             </Heading>
 
             <Text color="gray.400" mb={6}>
-              Enter a room ID to join your teammates.
+              Enter the Room ID to join.
             </Text>
 
             <VStack spacing={4}>

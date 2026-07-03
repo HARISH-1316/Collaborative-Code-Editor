@@ -68,66 +68,43 @@ import roomRouter from "./Routes/Room.js";
 app.use("/", userRouter);
 app.use("/", roomRouter);
 
-const port = process.env.PORT || 3000;
+//Models
+import Room from "./Models/Room.js";
 
-const ROOMS = [];
+const port = process.env.PORT || 3000;
 
 io.on("connection", async (socket) => {
   console.log(`A user connected with ${socket.id}`);
 
-  socket.on("roomState", (roomId) => {
-    const Room = ROOMS.find((room) => room.roomId == roomId);
-
-    socket.emit("roomState", Room);
-  });
-
-  socket.on("createRoom", ({ roomName, userName }) => {
-    const roomId = ROOMS.length.toString();
-    const Room = {
-      roomId,
-      roomName: roomName,
-      roomOwner: userName,
-    };
-
-    socket.join(roomId);
-
-    ROOMS.push(Room);
-
-    socket.emit("joinRoom", roomId);
-  });
-
-  socket.on("joinRoom", ({ roomId, userName }) => {
-    const Room = ROOMS.find((room) => room.roomId == roomId);
-    if (!Room) {
-      //do something
+  socket.on("joinRoom", async ({ roomId }, callback) => {
+    const room = await Room.findOne({ roomId });
+    if (!room) {
+      return callback({
+        failure: true,
+        message: "roomId is invalid",
+      });
     }
 
     socket.join(roomId);
-
     socket.roomId = roomId;
-    socket.userName = userName;
-
-    socket.emit("joinRoom", roomId);
+    return callback({
+      success: true,
+      message: `Joined room ${roomId}`,
+    });
   });
 
-  socket.on("leaveRoom", () => {
+  socket.on("leaveRoom", (callback) => {
     socket.leave(socket.roomId);
     socket.emit("leaveRoom");
+    return callback({
+      success: true,
+      message: `Left room ${socket.roomId}`,
+    });
   });
 
   socket.on("codeChange", ({ roomId, code }) => {
-    console.log(roomId);
-    console.log(code);
     socket.to(roomId).emit("codeChange", code);
   });
-
-  // socket.on("disconnect", () => {
-  //   const Room = ROOMS.find((Room) => Room.roomId == socket.roomId);
-  //   Room.onlineUsers = Room.onlineUsers.filter(
-  //     (user) => user != socket.userName,
-  //   );
-  //   io.to(socket.roomId).emit("userLeft", { onlineUsers: Room.onlineUsers });
-  // });
 });
 
 app.get("/", (req, res) => {
