@@ -37,17 +37,19 @@ export const postRoomFile = async (req, res, next) => {
     success: true,
     message: "Room and File added successfully",
     roomId,
+    fileId: room.file,
   });
 };
 
 export const getRoom = async (req, res, next) => {
-  const { roomId } = req.params;
+  const { roomId, fileId } = req.params;
+  console.log(fileId);
 
-  const room = await Room.findOne({ roomId })
-    .populate("file")
-    .populate("owner");
+  const room = await Room.findOne({ roomId }).populate("owner");
 
-  if (!room) {
+  const file = await File.findById(fileId);
+
+  if (!room || !file) {
     return res.status(404).json({
       success: false,
       message: "Room not found",
@@ -60,8 +62,28 @@ export const getRoom = async (req, res, next) => {
       roomId: room.roomId,
       roomName: room.roomName,
       roomOwner: room.owner.username,
-      fileName: room.file.fileName,
-      language: room.file.language,
+      fileName: file.fileName,
+      content: file.content,
+      language: file.language,
     },
+  });
+};
+
+export const postCode = async (req, res, next) => {
+  const { fileId } = req.params;
+  const { code } = req.body;
+  const file = await File.findByIdAndUpdate(
+    fileId,
+    {
+      content: code,
+    },
+    {
+      new: true,
+    },
+  );
+
+  res.json({
+    success: true,
+    message: "Code Saved successfully",
   });
 };

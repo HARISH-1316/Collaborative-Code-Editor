@@ -90,6 +90,7 @@ io.on("connection", async (socket) => {
     return callback({
       success: true,
       message: `Joined room ${roomId}`,
+      fileId: room.file,
     });
   });
 

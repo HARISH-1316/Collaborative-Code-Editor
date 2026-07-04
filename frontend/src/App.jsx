@@ -28,7 +28,10 @@ const App = () => {
 
           <Route path="/editor" element={<Room />}></Route>
 
-          <Route path="/editor/:roomId" element={<CodeEditor />}></Route>
+          <Route
+            path="/editor/:roomId/:fileId"
+            element={<CodeEditor />}
+          ></Route>
         </Routes>
         <div>{/* <Lobby userName={userName} /> */}</div>
       </SocketContext.Provider>

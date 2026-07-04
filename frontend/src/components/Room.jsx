@@ -25,21 +25,13 @@ const Room = () => {
         { withCredentials: true },
       );
       if (response.data.success) {
-        console.log(response.data.message);
-        console.log(response.data.roomId);
-        await joinRoom(response.data.roomId);
-        navigate(`/editor/${response.data.roomId}`);
+        navigate(`/editor/${response.data.roomId}/${response.data.fileId}`);
       } else {
         console.log("error occured");
       }
     } catch (err) {
       console.log(err);
     }
-  };
-
-  const joinRoom = (roomId) => {
-    console.log("abcd");
-    socket.emit("joinRoom", { roomId });
   };
 
   return (

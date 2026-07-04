@@ -14,7 +14,7 @@ const CodeEditor = () => {
   const editorRef = useRef(null);
   const typingRef = useRef(null);
   const isEdited = useRef(false);
-  const { roomId } = useParams();
+  const { roomId, fileId } = useParams();
   const socket = useSocket();
 
   const [code, setCode] = useState("// Write your code here...");
@@ -25,8 +25,20 @@ const CodeEditor = () => {
   const [onlineUsers, setOnlineUsers] = useState([]);
 
   useEffect(() => {
+    socket.emit("joinRoom", { roomId }, (response) => {
+      if (!socket) return;
+
+      if (response.success) {
+        console.log(response.message);
+      } else {
+        console.log("Could not able to join room");
+      }
+    });
+  }, [socket]);
+
+  useEffect(() => {
     const getRoom = async () => {
-      const url = `http://localhost:3000/editor/${roomId}`;
+      const url = `http://localhost:3000/editor/${roomId}/${fileId}`;
 
       try {
         const response = await axios.get(url, {
@@ -36,9 +48,12 @@ const CodeEditor = () => {
         if (response.data.success) {
           const { Room } = response.data;
 
+          console.log(Room);
+
           setRoomName(Room.roomName);
           setRoomOwner(Room.roomOwner);
           setFileName(Room.fileName);
+          setCode(Room.content);
           setLanguage(Room.language);
         }
       } catch (err) {
@@ -49,14 +64,13 @@ const CodeEditor = () => {
     if (roomId) {
       getRoom();
     }
-  }, [roomId]);
+  }, []);
 
   useEffect(() => {
     if (!socket) return;
 
     socket.on("codeChange", (code) => {
       isEdited.current = true;
-      editorRef.current.setValue(code);
       setCode(code);
       isEdited.current = false;
     });
@@ -64,7 +78,7 @@ const CodeEditor = () => {
     return () => {
       socket.off("codeChange");
     };
-  }, []);
+  }, [socket]);
 
   const onMount = (editor) => {
     editorRef.current = editor;
@@ -74,9 +88,33 @@ const CodeEditor = () => {
 
       clearTimeout(typingRef.current);
       typingRef.current = setTimeout(() => {
-        socket.emit("codeChange", { roomId, code: editor.getValue() });
+        socket.emit("codeChange", {
+          roomId,
+          code: editorRef.current.getValue(),
+        });
       }, 100);
     });
+  };
+
+  const handleSave = async () => {
+    console.log("ab");
+    const url = `http://localhost:3000/editor/${roomId}/${fileId}`;
+    try {
+      const response = await axios.post(
+        url,
+        { code: editorRef.current.getValue() },
+        {
+          withCredentials: true,
+        },
+      );
+      if (response.data.success) {
+        console.log(response.data.message);
+      } else {
+        console.log("error occures while saving code");
+      }
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
@@ -116,7 +154,11 @@ const CodeEditor = () => {
             borderColor="gray.700"
             boxShadow="xl"
           >
-            <FileInfo fileName={fileName} language={language} />
+            <FileInfo
+              fileName={fileName}
+              language={language}
+              handleSave={handleSave}
+            />
 
             <Editor
               height="calc(100% - 60px)"

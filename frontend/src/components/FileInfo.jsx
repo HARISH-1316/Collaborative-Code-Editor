@@ -6,6 +6,7 @@ import {
   MenuList,
   MenuItem,
   Text,
+  HStack,
 } from "@chakra-ui/react";
 import { ChevronDownIcon, CheckIcon } from "@chakra-ui/icons";
 
@@ -17,7 +18,7 @@ const languages = {
   cpp: [".cpp", "C++"],
 };
 
-const FileInfo = ({ fileName, language }) => {
+const FileInfo = ({ fileName, language, handleSave }) => {
   return (
     <Box
       display="flex"
@@ -35,16 +36,29 @@ const FileInfo = ({ fileName, language }) => {
         {language && languages[language][0]}
       </Text>
 
-      <Text
-        color="blue.300"
-        fontWeight="semibold"
-        bg="gray.700"
-        px={3}
-        py={1}
-        borderRadius="md"
-      >
-        {language && languages[language][1]}
-      </Text>
+      <HStack spacing={3}>
+        <Button
+          colorScheme="blue"
+          size="sm"
+          onClick={() => {
+            console.log("Button clicked");
+            handleSave();
+          }}
+        >
+          Save
+        </Button>
+
+        <Text
+          color="blue.300"
+          fontWeight="semibold"
+          bg="gray.700"
+          px={3}
+          py={1}
+          borderRadius="md"
+        >
+          {language && languages[language][1]}
+        </Text>
+      </HStack>
     </Box>
   );
 };

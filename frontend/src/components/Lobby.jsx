@@ -30,9 +30,9 @@ const Lobby = ({ userName }) => {
     socket.emit("joinRoom", { roomId }, (response) => {
       console.log(response);
       if (response.success) {
-        navigate(`/editor/${roomId}`);
+        navigate(`/editor/${roomId}/${response.fileId}`);
       } else {
-        console.log(response.message);
+        console.log("error occured");
       }
     });
   };
