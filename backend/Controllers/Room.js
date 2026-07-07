@@ -66,6 +66,9 @@ export const getRoom = async (req, res, next) => {
       content: file.content,
       language: file.language,
     },
+    User: {
+      username: req.user.username,
+    },
   });
 };
 

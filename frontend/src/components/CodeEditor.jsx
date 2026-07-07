@@ -18,6 +18,7 @@ const CodeEditor = () => {
   const socket = useSocket();
 
   const [code, setCode] = useState("// Write your code here...");
+  const [username, setUsername] = useState("");
   const [roomOwner, setRoomOwner] = useState("");
   const [roomName, setRoomName] = useState("");
   const [fileName, setFileName] = useState("");
@@ -25,7 +26,7 @@ const CodeEditor = () => {
   const [onlineUsers, setOnlineUsers] = useState([]);
 
   useEffect(() => {
-    socket.emit("joinRoom", { roomId }, (response) => {
+    socket.emit("joinRoom", { roomId, username }, (response) => {
       if (!socket) return;
 
       if (response.success) {
@@ -33,6 +34,10 @@ const CodeEditor = () => {
       } else {
         console.log("Could not able to join room");
       }
+    });
+
+    socket.on("onlineUsers", ({ nowOnline }) => {
+      setOnlineUsers(nowOnline);
     });
   }, [socket]);
 
@@ -46,15 +51,20 @@ const CodeEditor = () => {
         });
 
         if (response.data.success) {
-          const { Room } = response.data;
+          const { Room, User } = response.data;
 
           console.log(Room);
+          console.log(User);
 
+          setUsername(User.username);
           setRoomName(Room.roomName);
           setRoomOwner(Room.roomOwner);
           setFileName(Room.fileName);
           setCode(Room.content);
           setLanguage(Room.language);
+
+          const currentUsername = User.username;
+          getOnlineUsers(currentUsername);
         }
       } catch (err) {
         console.log(err);
@@ -79,6 +89,11 @@ const CodeEditor = () => {
       socket.off("codeChange");
     };
   }, [socket]);
+
+  const getOnlineUsers = async (currentUsername) => {
+    console.log(currentUsername, "(*)");
+    socket.emit("onlineUsers", { currentUsername });
+  };
 
   const onMount = (editor) => {
     editorRef.current = editor;
@@ -123,7 +138,7 @@ const CodeEditor = () => {
         roomName={roomName}
         roomId={roomId}
         owner={roomOwner}
-        users={[]}
+        users={onlineUsers}
       />
 
       <Box

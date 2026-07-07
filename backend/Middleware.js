@@ -1,6 +1,5 @@
 export const isLoggedIn = async (req, res, next) => {
   if (req.isAuthenticated()) {
-    console.log("abcde");
     return next();
   } else {
     res.json({
@@ -8,4 +7,11 @@ export const isLoggedIn = async (req, res, next) => {
       message: "User is not authenticated",
     });
   }
+};
+
+export const getUsername = async (req) => {
+  if (req.isAuthenticated()) {
+    return req.user.username;
+  }
+  return null;
 };

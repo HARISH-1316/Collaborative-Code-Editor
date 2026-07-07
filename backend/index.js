@@ -70,13 +70,17 @@ app.use("/", roomRouter);
 
 //Models
 import Room from "./Models/Room.js";
+import { getUsername } from "./Middleware.js";
 
 const port = process.env.PORT || 3000;
+
+//Online Users
+const onlineUsers = new Map();
 
 io.on("connection", async (socket) => {
   console.log(`A user connected with ${socket.id}`);
 
-  socket.on("joinRoom", async ({ roomId }, callback) => {
+  socket.on("joinRoom", async ({ roomId, username }, callback, req) => {
     const room = await Room.findOne({ roomId });
     if (!room) {
       return callback({
@@ -84,6 +88,10 @@ io.on("connection", async (socket) => {
         message: "roomId is invalid",
       });
     }
+
+    console.log(username);
+    socket.username = username;
+    console.log(socket.username, "**()");
 
     socket.join(roomId);
     socket.roomId = roomId;
@@ -96,7 +104,15 @@ io.on("connection", async (socket) => {
 
   socket.on("leaveRoom", (callback) => {
     socket.leave(socket.roomId);
-    socket.emit("leaveRoom");
+    onlineUsers.get(socket.roomId).delete(socket.username);
+    let nowOnline = [];
+    if (onlineUsers.get(socket.roomId).size == 0) {
+      onlineUsers.delete(socket.roomId);
+    } else {
+      nowOnline = [...onlineUsers.get(socket.roomId)];
+    }
+    console.log(nowOnline);
+    io.to(socket.roomId).emit("onlineUsers", { nowOnline });
     return callback({
       success: true,
       message: `Left room ${socket.roomId}`,
@@ -105,6 +121,17 @@ io.on("connection", async (socket) => {
 
   socket.on("codeChange", ({ roomId, code }) => {
     socket.to(roomId).emit("codeChange", code);
+  });
+
+  socket.on("onlineUsers", ({ currentUsername }, callback) => {
+    socket.username = currentUsername;
+
+    if (!onlineUsers.has(socket.roomId)) {
+      onlineUsers.set(socket.roomId, new Set());
+    }
+    onlineUsers.get(socket.roomId).add(socket.username);
+    const nowOnline = [...onlineUsers.get(socket.roomId)];
+    io.to(socket.roomId).emit("onlineUsers", { nowOnline });
   });
 });
 
