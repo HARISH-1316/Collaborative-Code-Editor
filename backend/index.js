@@ -70,7 +70,6 @@ app.use("/", roomRouter);
 
 //Models
 import Room from "./Models/Room.js";
-import { getUsername } from "./Middleware.js";
 
 const port = process.env.PORT || 3000;
 

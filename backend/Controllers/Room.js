@@ -37,7 +37,7 @@ export const postRoomFile = async (req, res, next) => {
     success: true,
     message: "Room and File added successfully",
     roomId,
-    fileId: room.file,
+    fileId: file._id,
   });
 };
 

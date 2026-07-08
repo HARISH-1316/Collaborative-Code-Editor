@@ -8,10 +8,3 @@ export const isLoggedIn = async (req, res, next) => {
     });
   }
 };
-
-export const getUsername = async (req) => {
-  if (req.isAuthenticated()) {
-    return req.user.username;
-  }
-  return null;
-};

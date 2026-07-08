@@ -10,22 +10,29 @@ import {
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useState } from "react";
+import { useEffect } from "react";
+import { useAuth } from "../checkAuth";
 
 const Welcome = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, authLogout } = useAuth();
 
-  const handleJoinLobby = async () => {
-    console.log("abc");
-    const url = "http://localhost:3000/lobby";
+  const handleJoinLobby = () => {
+    if (isAuthenticated) {
+      navigate("/lobby");
+    } else {
+      navigate("/login");
+    }
+  };
+
+  const handleLogout = async () => {
+    const url = "http://localhost:3000/logout";
     try {
       const response = await axios.get(url, { withCredentials: true });
-      console.log(response.data);
       if (response.data.success) {
-        console.log(response.data);
-        navigate("/lobby");
-      } else {
-        console.log("User not authenticated");
-        navigate("/login");
+        console.log(response.data.message);
+        authLogout();
       }
     } catch (err) {
       console.log(err);
@@ -56,17 +63,25 @@ const Welcome = () => {
 
         {/* Right */}
         <HStack spacing={4}>
-          <Button
-            variant="ghost"
-            colorScheme="whiteAlpha"
-            onClick={() => navigate("/login")}
-          >
-            Login
-          </Button>
+          {isAuthenticated ? (
+            <Button colorScheme="red" onClick={handleLogout}>
+              Logout
+            </Button>
+          ) : (
+            <>
+              <Button
+                variant="ghost"
+                colorScheme="whiteAlpha"
+                onClick={() => navigate("/login")}
+              >
+                Login
+              </Button>
 
-          <Button colorScheme="blue" onClick={() => navigate("/signup")}>
-            Sign Up
-          </Button>
+              <Button colorScheme="blue" onClick={() => navigate("/signup")}>
+                Sign Up
+              </Button>
+            </>
+          )}
         </HStack>
       </Flex>
 

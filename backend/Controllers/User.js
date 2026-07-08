@@ -31,3 +31,22 @@ export const postLogin = async (req, res, next) => {
     res.json({ success: true, message: "login successful" });
   });
 };
+
+export const logout = (req, res, next) => {
+  req.logout((err) => {
+    if (err) {
+      return next(err);
+    }
+    res.json({
+      success: true,
+      message: "User successfully logged out",
+    });
+  });
+};
+
+export const checkAuth = (req, res, next) => {
+  res.json({
+    success: true,
+    message: "User is Authenticated",
+  });
+};

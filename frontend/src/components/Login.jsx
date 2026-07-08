@@ -16,9 +16,11 @@ import {
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../checkAuth";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { authLogin } = useAuth();
 
   const [show, setShow] = useState(false);
 
@@ -40,6 +42,7 @@ const Login = () => {
     try {
       const response = await axios.post(url, user, { withCredentials: true });
       if (response.data.success) {
+        authLogin();
         navigate("/");
       } else {
         console.log("Wrong username/password");

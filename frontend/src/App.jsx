@@ -12,6 +12,7 @@ import SignUp from "./components/SignUp";
 import Login from "./components/Login";
 import File from "./components/File";
 import Room from "./components/Room";
+import ProtectedRoute from "./ProtectedRoute";
 
 const App = () => {
   return (
@@ -20,20 +21,37 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Welcome />} />
 
-          <Route path="/lobby" element={<Lobby />}></Route>
+          <Route
+            path="/lobby"
+            element={
+              <ProtectedRoute>
+                <Lobby />
+              </ProtectedRoute>
+            }
+          ></Route>
 
           <Route path="/signup" element={<SignUp />}></Route>
 
           <Route path="/login" element={<Login />}></Route>
 
-          <Route path="/editor" element={<Room />}></Route>
+          <Route
+            path="/editor"
+            element={
+              <ProtectedRoute>
+                <Room />
+              </ProtectedRoute>
+            }
+          ></Route>
 
           <Route
             path="/editor/:roomId/:fileId"
-            element={<CodeEditor />}
+            element={
+              <ProtectedRoute>
+                <CodeEditor />
+              </ProtectedRoute>
+            }
           ></Route>
         </Routes>
-        <div>{/* <Lobby userName={userName} /> */}</div>
       </SocketContext.Provider>
     </>
   );
