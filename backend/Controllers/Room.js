@@ -43,7 +43,6 @@ export const postRoomFile = async (req, res, next) => {
 
 export const getRoom = async (req, res, next) => {
   const { roomId, fileId } = req.params;
-  console.log(fileId);
 
   const room = await Room.findOne({ roomId }).populate("owner");
 
@@ -81,7 +80,7 @@ export const postCode = async (req, res, next) => {
       content: code,
     },
     {
-      new: true,
+      returnDocument: "after",
     },
   );
 

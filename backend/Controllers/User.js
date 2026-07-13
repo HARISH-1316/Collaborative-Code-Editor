@@ -16,7 +16,7 @@ export const postSignup = async (req, res, next) => {
     if (err) return next(err);
     req.session.save((err) => {
       if (err) return next(err);
-      console.log(req.session);
+
       res.json({
         success: true,
         message: "signup successful",

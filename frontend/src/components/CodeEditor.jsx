@@ -35,10 +35,6 @@ const CodeEditor = () => {
         console.log("Could not able to join room");
       }
     });
-
-    socket.on("onlineUsers", ({ nowOnline }) => {
-      setOnlineUsers(nowOnline);
-    });
   }, [socket]);
 
   useEffect(() => {
@@ -107,7 +103,7 @@ const CodeEditor = () => {
           roomId,
           code: editorRef.current.getValue(),
         });
-      }, 100);
+      }, 0);
     });
   };
 

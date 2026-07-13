@@ -5,6 +5,9 @@ import { Server } from "socket.io";
 const app = express();
 const server = createServer(app);
 
+//Online Users
+const onlineUsers = new Map();
+
 // CORS
 import cors from "cors";
 app.use(
@@ -13,12 +16,16 @@ app.use(
     credentials: true,
   }),
 );
+
+// Socket connection
+import { registerSocket } from "./socket/socket.js";
 const io = new Server(server, {
   cors: {
     origin: "http://localhost:5173",
     credentials: true,
   },
 });
+registerSocket(io, onlineUsers);
 
 // Mongoose
 import mongoose from "mongoose";
@@ -72,67 +79,6 @@ app.use("/", roomRouter);
 import Room from "./Models/Room.js";
 
 const port = process.env.PORT || 3000;
-
-//Online Users
-const onlineUsers = new Map();
-
-io.on("connection", async (socket) => {
-  console.log(`A user connected with ${socket.id}`);
-
-  socket.on("joinRoom", async ({ roomId, username }, callback, req) => {
-    const room = await Room.findOne({ roomId });
-    if (!room) {
-      return callback({
-        failure: true,
-        message: "roomId is invalid",
-      });
-    }
-
-    console.log(username);
-    socket.username = username;
-    console.log(socket.username, "**()");
-
-    socket.join(roomId);
-    socket.roomId = roomId;
-    return callback({
-      success: true,
-      message: `Joined room ${roomId}`,
-      fileId: room.file,
-    });
-  });
-
-  socket.on("leaveRoom", (callback) => {
-    socket.leave(socket.roomId);
-    onlineUsers.get(socket.roomId).delete(socket.username);
-    let nowOnline = [];
-    if (onlineUsers.get(socket.roomId).size == 0) {
-      onlineUsers.delete(socket.roomId);
-    } else {
-      nowOnline = [...onlineUsers.get(socket.roomId)];
-    }
-    console.log(nowOnline);
-    io.to(socket.roomId).emit("onlineUsers", { nowOnline });
-    return callback({
-      success: true,
-      message: `Left room ${socket.roomId}`,
-    });
-  });
-
-  socket.on("codeChange", ({ roomId, code }) => {
-    socket.to(roomId).emit("codeChange", code);
-  });
-
-  socket.on("onlineUsers", ({ currentUsername }, callback) => {
-    socket.username = currentUsername;
-
-    if (!onlineUsers.has(socket.roomId)) {
-      onlineUsers.set(socket.roomId, new Set());
-    }
-    onlineUsers.get(socket.roomId).add(socket.username);
-    const nowOnline = [...onlineUsers.get(socket.roomId)];
-    io.to(socket.roomId).emit("onlineUsers", { nowOnline });
-  });
-});
 
 app.get("/", (req, res) => {
   res.send("Hello World");
