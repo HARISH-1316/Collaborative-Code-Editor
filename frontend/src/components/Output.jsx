@@ -1,19 +1,23 @@
 import { Box, Button, Flex, Text } from "@chakra-ui/react";
 import { editor } from "monaco-editor";
 import { executeCode } from "./api";
+import axios from "axios";
+import { useParams } from "react-router-dom";
 
 const Output = ({ editorRef, language }) => {
+  const { roomId } = useParams();
+
   const runCode = async () => {
     const sourceCode = editorRef.current.getValue();
     if (!sourceCode) {
       return;
     }
-
+    const url = `http://localhost:3000/editor/${roomId}/execute`;
     try {
-      const output = await executeCode(language, sourceCode);
-      console.log(output);
-    } catch (error) {
-      console.log("err");
+      console.log("runCode");
+      const response = await axios.post(url, {}, { withCredentials: true });
+    } catch (err) {
+      console.log(err);
     }
   };
   return (

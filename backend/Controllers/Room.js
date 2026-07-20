@@ -37,16 +37,16 @@ export const postRoomFile = async (req, res, next) => {
     success: true,
     message: "Room and File added successfully",
     roomId,
-    fileId: file._id,
+    fileName: file.fileName,
   });
 };
 
 export const getRoom = async (req, res, next) => {
-  const { roomId, fileId } = req.params;
+  const { roomId, fileName } = req.params;
 
   const room = await Room.findOne({ roomId }).populate("owner");
 
-  const file = await File.findById(fileId);
+  const file = await File.findOne({ room: room.id, fileName });
 
   if (!room || !file) {
     return res.status(404).json({
@@ -72,10 +72,13 @@ export const getRoom = async (req, res, next) => {
 };
 
 export const postCode = async (req, res, next) => {
-  const { fileId } = req.params;
+  const { roomId, fileName } = req.params;
   const { code } = req.body;
-  const file = await File.findByIdAndUpdate(
-    fileId,
+
+  const room = await Room.findOne({ roomId });
+
+  const file = await File.findOneAndUpdate(
+    { room: room.id, fileName },
     {
       content: code,
     },

@@ -70,10 +70,12 @@ passport.deserializeUser(User.deserializeUser());
 // Routers
 import userRouter from "./Routes/User.js";
 import roomRouter from "./Routes/Room.js";
+import executionRouter from "./Routes/Execution.js";
 
 // Routes
 app.use("/", userRouter);
 app.use("/", roomRouter);
+app.use("/", executionRouter);
 
 //Models
 import Room from "./Models/Room.js";

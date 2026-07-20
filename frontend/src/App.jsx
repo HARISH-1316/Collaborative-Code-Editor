@@ -44,7 +44,7 @@ const App = () => {
           ></Route>
 
           <Route
-            path="/editor/:roomId/:fileId"
+            path="/editor/:roomId/file/:fileName"
             element={
               <ProtectedRoute>
                 <CodeEditor />

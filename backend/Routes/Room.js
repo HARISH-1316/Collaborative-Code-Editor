@@ -14,7 +14,7 @@ router.get("/lobby", isLoggedIn, getLobby);
 router.post("/editor", isLoggedIn, postRoomFile);
 
 router
-  .route("/editor/:roomId/:fileId")
+  .route("/editor/:roomId/file/:fileName")
   .get(isLoggedIn, getRoom)
   .post(isLoggedIn, postCode);
 

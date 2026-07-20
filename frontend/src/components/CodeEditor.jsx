@@ -14,14 +14,13 @@ const CodeEditor = () => {
   const editorRef = useRef(null);
   const typingRef = useRef(null);
   const isEdited = useRef(false);
-  const { roomId, fileId } = useParams();
+  const { roomId, fileName } = useParams();
   const socket = useSocket();
 
   const [code, setCode] = useState("// Write your code here...");
   const [username, setUsername] = useState("");
   const [roomOwner, setRoomOwner] = useState("");
   const [roomName, setRoomName] = useState("");
-  const [fileName, setFileName] = useState("");
   const [language, setLanguage] = useState("");
   const [onlineUsers, setOnlineUsers] = useState([]);
 
@@ -39,7 +38,7 @@ const CodeEditor = () => {
 
   useEffect(() => {
     const getRoom = async () => {
-      const url = `http://localhost:3000/editor/${roomId}/${fileId}`;
+      const url = `http://localhost:3000/editor/${roomId}/file/${fileName}`;
 
       try {
         const response = await axios.get(url, {
@@ -55,7 +54,6 @@ const CodeEditor = () => {
           setUsername(User.username);
           setRoomName(Room.roomName);
           setRoomOwner(Room.roomOwner);
-          setFileName(Room.fileName);
           setCode(Room.content);
           setLanguage(Room.language);
 
@@ -109,7 +107,7 @@ const CodeEditor = () => {
 
   const handleSave = async () => {
     console.log("ab");
-    const url = `http://localhost:3000/editor/${roomId}/${fileId}`;
+    const url = `http://localhost:3000/editor/${roomId}/${fileName}`;
     try {
       const response = await axios.post(
         url,

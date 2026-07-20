@@ -23,7 +23,7 @@ export const registerSocket = (io, onlineUsers) => {
     console.log(`A user connected with ${socket.id}`);
 
     socket.on("joinRoom", async ({ roomId, username }, callback, req) => {
-      const room = await Room.findOne({ roomId });
+      const room = await Room.findOne({ roomId }).populate("file");
       if (!room) {
         return callback({
           failure: true,
@@ -38,7 +38,7 @@ export const registerSocket = (io, onlineUsers) => {
       return callback({
         success: true,
         message: `Joined room ${roomId}`,
-        fileId: room.file,
+        fileName: room.file.fileName,
       });
     });
 
