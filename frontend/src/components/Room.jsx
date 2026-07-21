@@ -25,7 +25,9 @@ const Room = () => {
         { withCredentials: true },
       );
       if (response.data.success) {
-        navigate(`/editor/${response.data.roomId}/${response.data.fileId}`);
+        navigate(
+          `/editor/${response.data.roomId}/file/${response.data.fileName}`,
+        );
       } else {
         console.log("error occured");
       }

@@ -107,7 +107,7 @@ const CodeEditor = () => {
 
   const handleSave = async () => {
     console.log("ab");
-    const url = `http://localhost:3000/editor/${roomId}/${fileName}`;
+    const url = `http://localhost:3000/editor/${roomId}/file/${fileName}`;
     try {
       const response = await axios.post(
         url,
