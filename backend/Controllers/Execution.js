@@ -37,7 +37,13 @@ export const executeCode = async (req, res, next) => {
 
   const { exitCode, stdout, stderr } = await runner(workspacePath);
 
-  console.log(exitCode, "\n", stdout, "\n", stderr, "\n***");
-
   await cleanupWorkspace(workspacePath);
+
+  res.json({
+    success: true,
+    message: "Executed Successfully",
+    exitCode,
+    stdout,
+    stderr,
+  });
 };

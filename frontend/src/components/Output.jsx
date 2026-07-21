@@ -3,19 +3,29 @@ import { editor } from "monaco-editor";
 import { executeCode } from "./api";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import { useState } from "react";
 
 const Output = ({ editorRef, language }) => {
   const { roomId } = useParams();
+  const [output, setOutput] = useState("Hello Output");
+  const [hasError, setHasError] = useState(false);
 
   const runCode = async () => {
-    const sourceCode = editorRef.current.getValue();
-    if (!sourceCode) {
-      return;
-    }
     const url = `http://localhost:3000/editor/${roomId}/execute`;
     try {
       console.log("runCode");
       const response = await axios.post(url, {}, { withCredentials: true });
+      const { stdout, stderr } = response.data;
+
+      if (response.data.success) {
+        if (stderr && stderr.trim() !== "") {
+          setHasError(true);
+          setOutput(stderr);
+        } else {
+          setHasError(false);
+          setOutput(stdout);
+        }
+      }
     } catch (err) {
       console.log(err);
     }
@@ -45,9 +55,13 @@ const Output = ({ editorRef, language }) => {
         bg="gray.900"
         borderRadius="md"
         p={4}
-        color="white"
+        whiteSpace="pre-wrap"
+        fontFamily="mono"
+        color={hasError ? "red.300" : "green.300"}
+        border="1px solid"
+        borderColor={hasError ? "red.500" : "green.500"}
       >
-        Hello Output
+        {output}
       </Box>
     </Box>
   );

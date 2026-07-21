@@ -31,6 +31,7 @@ export default function runDocker(workspacePath, imageName, command) {
       stderr += data.toString();
     });
 
+    // Error in docker not stderr
     docker.on("error", (err) => {
       reject(err);
     });
