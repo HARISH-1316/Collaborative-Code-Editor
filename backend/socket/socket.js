@@ -66,12 +66,16 @@ export const registerSocket = (io, onlineUsers) => {
     socket.on("onlineUsers", ({ currentUsername }, callback) => {
       socket.username = currentUsername;
 
+      console.log(socket.username);
+
       if (!onlineUsers.has(socket.roomId)) {
         onlineUsers.set(socket.roomId, new Set());
       }
-      console.log(onlineUsers);
+
       onlineUsers.get(socket.roomId).add(socket.username);
+
       const nowOnline = [...onlineUsers.get(socket.roomId)];
+
       io.to(socket.roomId).emit("onlineUsers", { nowOnline });
     });
   });

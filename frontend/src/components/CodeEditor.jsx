@@ -34,6 +34,9 @@ const CodeEditor = () => {
         console.log("Could not able to join room");
       }
     });
+    socket.on("onlineUsers", ({ nowOnline }) => {
+      setOnlineUsers(nowOnline);
+    });
   }, [socket]);
 
   useEffect(() => {
