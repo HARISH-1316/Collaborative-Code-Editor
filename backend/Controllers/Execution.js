@@ -33,9 +33,12 @@ export const executeCode = async (req, res, next) => {
     workspacePath,
   );
 
+  console.log(workspacePath);
+
   const runner = runners[file.language];
 
   const { exitCode, stdout, stderr } = await runner(workspacePath);
+  console.log(stdout, stderr);
 
   await cleanupWorkspace(workspacePath);
 

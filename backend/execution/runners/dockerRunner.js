@@ -24,24 +24,35 @@ export default function runDocker(workspacePath, imageName, command) {
     let stderr = "";
 
     docker.stdout.on("data", (data) => {
+      console.log("STDOUT:", data.toString());
       stdout += data.toString();
     });
 
     docker.stderr.on("data", (data) => {
+      console.log("STDERR:", data.toString());
       stderr += data.toString();
     });
 
-    // Error in docker not stderr
-    docker.on("error", (err) => {
-      reject(err);
+    docker.on("exit", (code, signal) => {
+      console.log("EXIT", code, signal);
     });
 
-    docker.on("close", (code) => {
+    docker.on("close", (code, signal) => {
+      console.log("CLOSE", code, signal);
+
       resolve({
         exitCode: code,
         stdout,
         stderr,
       });
     });
+
+    // docker.on("close", (code) => {
+    //   resolve({
+    //     exitCode: code,
+    //     stdout,
+    //     stderr,
+    //   });
+    // });
   });
 }

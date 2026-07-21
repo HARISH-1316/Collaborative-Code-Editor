@@ -6,7 +6,7 @@ const extensions = {
   typescript: "ts",
   java: "java",
   cpp: "cpp",
-  c: "c",
+  python: "py",
 };
 
 export const populateProject = async (
