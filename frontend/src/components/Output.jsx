@@ -5,7 +5,7 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import { useState } from "react";
 
-const Output = ({ editorRef, language }) => {
+const Output = ({ editorRef, language, input }) => {
   const { roomId } = useParams();
   const [output, setOutput] = useState("Hello Output");
   const [hasError, setHasError] = useState(false);
@@ -14,7 +14,11 @@ const Output = ({ editorRef, language }) => {
     const url = `http://localhost:3000/editor/${roomId}/execute`;
     try {
       console.log("runCode");
-      const response = await axios.post(url, {}, { withCredentials: true });
+      const response = await axios.post(
+        url,
+        { input },
+        { withCredentials: true },
+      );
       const { stdout, stderr } = response.data;
 
       if (response.data.success) {
@@ -35,7 +39,7 @@ const Output = ({ editorRef, language }) => {
       w="100%"
       h="75%"
       bg="gray.800"
-      borderRadius="lg"
+      borderRadius="0"
       border="1px solid"
       borderColor="gray.700"
       p={4}
@@ -53,7 +57,7 @@ const Output = ({ editorRef, language }) => {
       <Box
         h="calc(100% - 50px)"
         bg="gray.900"
-        borderRadius="md"
+        borderRadius="0"
         p={4}
         whiteSpace="pre-wrap"
         fontFamily="mono"

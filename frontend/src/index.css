@@ -1,31 +1,70 @@
+/* Base gutter */
 .gutter {
-  background-color: #2d3748;
-  cursor: col-resize;
   position: relative;
-  transition: background 0.2s ease;
+  background-color: #2d3748;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
 }
 
 .gutter:hover {
-  background-color: #4a5568;
+  background-color: #4299e1;
 }
 
+/* Horizontal Split (Editor | Output) */
+.gutter.gutter-horizontal {
+  width: 10px;
+  cursor: col-resize;
+}
+
+/* Vertical Split (Input | Output) */
+.gutter.gutter-vertical {
+  height: 10px;
+  cursor: row-resize;
+}
+
+/* Grip */
 .gutter::before {
   content: "";
   position: absolute;
+  border-radius: 999px;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.gutter:hover::before {
+  opacity: 1;
+}
+
+/* Grip for horizontal divider */
+.gutter.gutter-horizontal::before {
   top: 50%;
   left: 50%;
   width: 4px;
-  height: 32px;
+  height: 40px;
   transform: translate(-50%, -50%);
-  border-radius: 999px;
-
   background-image:
-    radial-gradient(circle, #a0aec0 1.5px, transparent 1.5px),
-    radial-gradient(circle, #a0aec0 1.5px, transparent 1.5px);
-
-  background-size: 4px 12px;
+    radial-gradient(circle, #cbd5e0 1.3px, transparent 1.3px),
+    radial-gradient(circle, #cbd5e0 1.3px, transparent 1.3px);
+  background-size: 4px 10px;
   background-position:
     0 0,
-    0 6px;
+    0 5px;
   background-repeat: repeat-y;
+}
+
+/* Grip for vertical divider */
+.gutter.gutter-vertical::before {
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 4px;
+  transform: translate(-50%, -50%);
+  background-image:
+    radial-gradient(circle, #cbd5e0 1.3px, transparent 1.3px),
+    radial-gradient(circle, #cbd5e0 1.3px, transparent 1.3px);
+  background-size: 10px 4px;
+  background-position:
+    0 0,
+    5px 0;
+  background-repeat: repeat-x;
 }

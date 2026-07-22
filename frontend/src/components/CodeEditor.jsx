@@ -9,6 +9,7 @@ import Navbar from "./Navbar";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import FileInfo from "./FileInfo";
+import Input from "./Input";
 
 const CodeEditor = () => {
   const editorRef = useRef(null);
@@ -23,6 +24,7 @@ const CodeEditor = () => {
   const [roomName, setRoomName] = useState("");
   const [language, setLanguage] = useState("");
   const [onlineUsers, setOnlineUsers] = useState([]);
+  const [input, setInput] = useState("");
 
   useEffect(() => {
     socket.emit("joinRoom", { roomId, username }, (response) => {
@@ -200,7 +202,26 @@ const CodeEditor = () => {
             boxShadow="xl"
             bg="gray.900"
           >
-            <Output editorRef={editorRef} language={language} />
+            <Split
+              direction="vertical"
+              sizes={[35, 65]}
+              minSize={[100, 150]}
+              gutterSize={8}
+              gutter={(index, direction) => {
+                const gutter = document.createElement("div");
+                gutter.className = `gutter gutter-${direction}`;
+                return gutter;
+              }}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                height: "100%",
+              }}
+            >
+              <Input input={input} setInput={setInput} />
+
+              <Output editorRef={editorRef} language={language} input={input} />
+            </Split>
           </Box>
         </Split>
       </Box>

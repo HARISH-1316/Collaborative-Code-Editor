@@ -1,11 +1,13 @@
 import { spawn } from "child_process";
 
-export default function runDocker(workspacePath, imageName, command) {
+export const runDocker = async (input, workspacePath, imageName, command) => {
   console.log("dockerRunner");
   return new Promise((resolve, reject) => {
     const docker = spawn("docker", [
       "run",
       "--rm",
+
+      "-i",
 
       "-v",
       `${workspacePath}:/workspace`,
@@ -20,39 +22,30 @@ export default function runDocker(workspacePath, imageName, command) {
       command,
     ]);
 
+    docker.stdin.write(input);
+
+    docker.stdin.end();
+
     let stdout = "";
     let stderr = "";
 
     docker.stdout.on("data", (data) => {
-      console.log("STDOUT:", data.toString());
       stdout += data.toString();
     });
 
     docker.stderr.on("data", (data) => {
-      console.log("STDERR:", data.toString());
       stderr += data.toString();
     });
 
-    docker.on("exit", (code, signal) => {
-      console.log("EXIT", code, signal);
-    });
+    stdout = stdout.trimEnd();
+    stderr = stderr.trimEnd();
 
     docker.on("close", (code, signal) => {
-      console.log("CLOSE", code, signal);
-
       resolve({
         exitCode: code,
         stdout,
         stderr,
       });
     });
-
-    // docker.on("close", (code) => {
-    //   resolve({
-    //     exitCode: code,
-    //     stdout,
-    //     stderr,
-    //   });
-    // });
   });
-}
+};

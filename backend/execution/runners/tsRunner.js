@@ -1,5 +1,5 @@
-import runDocker from "./dockerRunner.js";
+import { runDocker } from "./dockerRunner.js";
 
-export const runTS = (workspacePath) => {
-  return runDocker(workspacePath, "ts-runner", "tsx main.ts");
+export const runTS = (workspacePath, input) => {
+  return runDocker(input, workspacePath, "ts-runner", "tsx main.ts");
 };

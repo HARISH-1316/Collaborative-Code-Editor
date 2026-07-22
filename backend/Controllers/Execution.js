@@ -19,6 +19,7 @@ const runners = {
 
 export const executeCode = async (req, res, next) => {
   const { roomId } = req.params;
+  const { input } = req.body;
   const room = await Room.findOne({ roomId });
   const file = await File.findOne({ room: room.id });
 
@@ -33,12 +34,9 @@ export const executeCode = async (req, res, next) => {
     workspacePath,
   );
 
-  console.log(workspacePath);
-
   const runner = runners[file.language];
 
-  const { exitCode, stdout, stderr } = await runner(workspacePath);
-  console.log(stdout, stderr);
+  const { exitCode, stdout, stderr } = await runner(workspacePath, input);
 
   await cleanupWorkspace(workspacePath);
 
