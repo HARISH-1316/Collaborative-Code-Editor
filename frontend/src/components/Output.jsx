@@ -19,10 +19,10 @@ const Output = ({ editorRef, language, input }) => {
         { input },
         { withCredentials: true },
       );
-      const { stdout, stderr } = response.data;
+      const { verdict, exitCode, stdout, stderr } = response.data;
 
       if (response.data.success) {
-        if (stderr && stderr.trim() !== "") {
+        if (stderr && stderr != "") {
           setHasError(true);
           setOutput(stderr);
         } else {

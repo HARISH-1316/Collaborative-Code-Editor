@@ -36,13 +36,19 @@ export const executeCode = async (req, res, next) => {
 
   const runner = runners[file.language];
 
-  const { exitCode, stdout, stderr } = await runner(workspacePath, input);
+  const { verdict, exitCode, stdout, stderr } = await runner(
+    workspacePath,
+    input,
+  );
+
+  // console.log(stdout, stderr);
 
   await cleanupWorkspace(workspacePath);
 
   res.json({
     success: true,
     message: "Executed Successfully",
+    verdict,
     exitCode,
     stdout,
     stderr,

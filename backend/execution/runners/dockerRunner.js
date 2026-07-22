@@ -22,6 +22,12 @@ export const runDocker = async (input, workspacePath, imageName, command) => {
       command,
     ]);
 
+    let timeOut = false;
+    const timer = setTimeout(() => {
+      timeOut = true;
+      docker.kill();
+    }, 5000);
+
     docker.stdin.write(input);
 
     docker.stdin.end();
@@ -37,15 +43,26 @@ export const runDocker = async (input, workspacePath, imageName, command) => {
       stderr += data.toString();
     });
 
-    stdout = stdout.trimEnd();
-    stderr = stderr.trimEnd();
-
     docker.on("close", (code, signal) => {
-      resolve({
-        exitCode: code,
-        stdout,
-        stderr,
-      });
+      clearTimeout(timer);
+      stdout = stdout.trimEnd();
+      stderr = stderr.trimEnd();
+
+      if (timeOut) {
+        resolve({
+          verdict: "TLE",
+          exitCode: null,
+          stdout: "",
+          stderr: "Time Limit Exceeded <TLE>",
+        });
+      } else {
+        resolve({
+          verdict: "OK",
+          exitCode: code,
+          stdout,
+          stderr,
+        });
+      }
     });
   });
 };
