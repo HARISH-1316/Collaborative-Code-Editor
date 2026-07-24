@@ -1,7 +1,7 @@
 import { Box, Flex, Text, Textarea, Button, Tooltip } from "@chakra-ui/react";
 import { FiTrash2 } from "react-icons/fi";
 
-const Input = ({ input, setInput }) => {
+const Input = ({ input, setInput, inputRef }) => {
   const clearInput = () => setInput("");
 
   return (
@@ -41,7 +41,10 @@ const Input = ({ input, setInput }) => {
       {/* Textarea */}
       <Textarea
         value={input}
-        onChange={(e) => setInput(e.target.value)}
+        onChange={(e) => {
+          setInput(e.target.value);
+          inputRef.current = e.target.value;
+        }}
         placeholder={`//Input`}
         flex="1"
         resize="none"

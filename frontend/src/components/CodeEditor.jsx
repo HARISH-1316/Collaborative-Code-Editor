@@ -26,6 +26,7 @@ const CodeEditor = () => {
   const [language, setLanguage] = useState("");
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [input, setInput] = useState("");
+  const inputRef = useRef("");
   const [output, setOutput] = useState("Hello Output");
   const [hasError, setHasError] = useState(false);
 
@@ -143,6 +144,7 @@ const CodeEditor = () => {
         },
       );
       if (response.data.success) {
+        codeSavedToast();
         console.log(response.data.message);
       } else {
         console.log("error occures while saving code");
@@ -150,6 +152,16 @@ const CodeEditor = () => {
     } catch (err) {
       console.log(err);
     }
+  };
+
+  const codeSavedToast = () => {
+    toast({
+      title: "Code saved",
+      description: "Your changes have been saved successfully.",
+      status: "success",
+      duration: 3000,
+      isClosable: true,
+    });
   };
 
   const userJoinedToast = (newUser) => {
@@ -180,10 +192,11 @@ const CodeEditor = () => {
 
     try {
       console.log("runCode");
+      console.log(inputRef.current, "()");
 
       const response = await axios.post(
         url,
-        { input },
+        { input: inputRef.current },
         { withCredentials: true },
       );
 
@@ -290,7 +303,7 @@ const CodeEditor = () => {
                 height: "100%",
               }}
             >
-              <Input input={input} setInput={setInput} />
+              <Input input={input} setInput={setInput} inputRef={inputRef} />
 
               <Output output={output} runCode={runCode} hasError={hasError} />
             </Split>

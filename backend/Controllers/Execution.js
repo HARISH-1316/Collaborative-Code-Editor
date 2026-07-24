@@ -20,7 +20,8 @@ const runners = {
 export const executeCode = async (req, res, next) => {
   const { roomId } = req.params;
   let { input } = req.body;
-  input = input.trim();
+  // input = input.trim();
+  console.log(input + "()()()()()()()()()()()(()()()()()()()");
   const room = await Room.findOne({ roomId });
   const file = await File.findOne({ room: room.id });
 

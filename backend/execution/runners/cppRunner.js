@@ -5,6 +5,6 @@ export const runCpp = (workspacePath, input, fileName) => {
     input,
     workspacePath,
     "cpp-runner",
-    `g++ main.cpp -o ${fileName} && ./${fileName}`,
+    `g++ ${fileName}.cpp -o ${fileName} && ./${fileName}`,
   );
 };
