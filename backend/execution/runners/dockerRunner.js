@@ -2,6 +2,7 @@ import { spawn } from "child_process";
 
 export const runDocker = async (input, workspacePath, imageName, command) => {
   console.log("dockerRunner");
+  console.log(input, imageName, workspacePath, command);
   return new Promise((resolve, reject) => {
     const docker = spawn("docker", [
       "run",
@@ -21,6 +22,7 @@ export const runDocker = async (input, workspacePath, imageName, command) => {
       "-c",
       command,
     ]);
+    console.log("*****");
 
     let timeOut = false;
     const timer = setTimeout(() => {
@@ -28,20 +30,32 @@ export const runDocker = async (input, workspacePath, imageName, command) => {
       docker.kill();
     }, 5000);
 
-    docker.stdin.write(input);
+    console.log(input.length, "(*)");
+
+    if (input.length > 0) {
+      docker.stdin.write(input);
+      console.log("))((");
+    }
 
     docker.stdin.end();
+
+    console.log("()()");
 
     let stdout = "";
     let stderr = "";
 
     docker.stdout.on("data", (data) => {
+      console.log("((");
       stdout += data.toString();
     });
 
     docker.stderr.on("data", (data) => {
+      console.log("))");
       stderr += data.toString();
     });
+
+    console.log(stdout);
+    console.log("((");
 
     docker.on("close", (code, signal) => {
       clearTimeout(timer);

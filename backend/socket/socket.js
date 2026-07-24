@@ -52,6 +52,7 @@ export const registerSocket = (io, onlineUsers) => {
         nowOnline = [...onlineUsers.get(socket.roomId)];
       }
 
+      socket.to(socket.roomId).emit("userLeft", { user: socket.username });
       io.to(socket.roomId).emit("onlineUsers", { nowOnline });
       return callback({
         success: true,
@@ -75,6 +76,8 @@ export const registerSocket = (io, onlineUsers) => {
       onlineUsers.get(socket.roomId).add(socket.username);
 
       const nowOnline = [...onlineUsers.get(socket.roomId)];
+
+      socket.to(socket.roomId).emit("userJoined", { newUser: currentUsername });
 
       io.to(socket.roomId).emit("onlineUsers", { nowOnline });
     });

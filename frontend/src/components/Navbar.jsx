@@ -10,6 +10,7 @@ import {
   Spacer,
   Text,
   Tooltip,
+  useToast,
 } from "@chakra-ui/react";
 import { IconButton } from "@chakra-ui/react";
 import { useSocket } from "../SocketContext";
@@ -20,6 +21,7 @@ import { useState } from "react";
 
 const Navbar = ({ roomName, roomId, owner, users = [] }) => {
   const socket = useSocket();
+  const toast = useToast();
   const navigate = useNavigate();
 
   const [copied, setCopied] = useState(false);
@@ -27,6 +29,7 @@ const Navbar = ({ roomName, roomId, owner, users = [] }) => {
   const handleLeaveRoom = () => {
     socket.emit("leaveRoom", (response) => {
       if (response.success) {
+        roomLeftToast();
         console.log(response.message);
         navigate("/lobby");
       }
@@ -44,6 +47,17 @@ const Navbar = ({ roomName, roomId, owner, users = [] }) => {
     } catch (err) {
       console.log(err);
     }
+  };
+
+  const roomLeftToast = () => {
+    toast({
+      title: "Room Left",
+      description: "You have left the collaboration room.",
+      status: "info",
+      duration: 3000,
+      isClosable: true,
+      position: "top-right",
+    });
   };
 
   return (

@@ -1,4 +1,4 @@
-import { Box } from "@chakra-ui/react";
+import { Box, useToast } from "@chakra-ui/react";
 import { useState } from "react";
 import CodeEditor from "./CodeEditor";
 import File from "./File";
@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useSocket } from "../SocketContext";
 
 const Room = () => {
+  const toast = useToast();
   const socket = useSocket();
   const [showFileForm, setShowFileForm] = useState(true);
   const [roomName, setRoomName] = useState("");
@@ -25,6 +26,7 @@ const Room = () => {
         { withCredentials: true },
       );
       if (response.data.success) {
+        roomCreatedToast();
         navigate(
           `/editor/${response.data.roomId}/file/${response.data.fileName}`,
         );
@@ -34,6 +36,17 @@ const Room = () => {
     } catch (err) {
       console.log(err);
     }
+  };
+
+  const roomCreatedToast = () => {
+    toast({
+      title: "Room Created",
+      description: "Your collaboration room has been created successfully.",
+      status: "success",
+      duration: 3000,
+      isClosable: true,
+      position: "top-right",
+    });
   };
 
   return (

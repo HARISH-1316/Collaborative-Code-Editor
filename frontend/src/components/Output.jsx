@@ -1,39 +1,6 @@
 import { Box, Button, Flex, Text } from "@chakra-ui/react";
-import { editor } from "monaco-editor";
-import { executeCode } from "./api";
-import axios from "axios";
-import { useParams } from "react-router-dom";
-import { useState } from "react";
 
-const Output = ({ editorRef, language, input }) => {
-  const { roomId } = useParams();
-  const [output, setOutput] = useState("Hello Output");
-  const [hasError, setHasError] = useState(false);
-
-  const runCode = async () => {
-    const url = `http://localhost:3000/editor/${roomId}/execute`;
-    try {
-      console.log("runCode");
-      const response = await axios.post(
-        url,
-        { input },
-        { withCredentials: true },
-      );
-      const { verdict, exitCode, stdout, stderr } = response.data;
-
-      if (response.data.success) {
-        if (stderr && stderr != "") {
-          setHasError(true);
-          setOutput(stderr);
-        } else {
-          setHasError(false);
-          setOutput(stdout);
-        }
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
+const Output = ({ output, hasError, runCode }) => {
   return (
     <Box
       w="100%"

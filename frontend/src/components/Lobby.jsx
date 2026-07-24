@@ -7,6 +7,7 @@ import {
   Heading,
   Input,
   Text,
+  useToast,
   VStack,
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
@@ -15,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 
 const Lobby = ({ userName }) => {
   const socket = useSocket();
+  const toast = useToast();
 
   const [roomName, setRoomName] = useState("");
   const [roomId, setRoomId] = useState("");
@@ -30,10 +32,22 @@ const Lobby = ({ userName }) => {
     socket.emit("joinRoom", { roomId }, (response) => {
       console.log(response);
       if (response.success) {
+        roomJoinedToast();
         navigate(`/editor/${roomId}/file/${response.fileName}`);
       } else {
         console.log("error occured");
       }
+    });
+  };
+
+  const roomJoinedToast = () => {
+    toast({
+      title: "Room Joined",
+      description: "You have joined the collaboration room successfully.",
+      status: "success",
+      duration: 3000,
+      isClosable: true,
+      position: "top-right",
     });
   };
 

@@ -1,6 +1,6 @@
 import { runDocker } from "./dockerRunner.js";
 
-export const runJS = (workspacePath, input) => {
+export const runJS = (workspacePath, input, fileName) => {
   console.log("runJS");
-  return (runDockerinput, (workspacePath, "js-runner", "node index.js"));
+  return runDocker(input, workspacePath, "js-runner", `node ${fileName}.js`);
 };

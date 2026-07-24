@@ -15,11 +15,17 @@ router.post("/signup", postSignup);
 router.post(
   "/login",
   passport.authenticate("local", {
-    failureRedirect: "/login",
+    failWithError: true,
   }),
   postLogin,
+  (err, req, res, next) => {
+    return res.status(401).json({
+      success: false,
+      code: "INVALID_CREDENTIALS",
+      message: "Incorrect username or password",
+    });
+  },
 );
-
 router.get("/logout", logout);
 
 router.get("/checkAuth", isLoggedIn, checkAuth);

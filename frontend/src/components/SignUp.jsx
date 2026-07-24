@@ -12,6 +12,7 @@ import {
   VStack,
   InputGroup,
   InputRightElement,
+  useToast,
 } from "@chakra-ui/react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
@@ -21,6 +22,7 @@ import { useAuth } from "../checkAuth";
 const SignUp = () => {
   const navigate = useNavigate();
   const { authLogin } = useAuth();
+  const toast = useToast();
 
   const [show, setShow] = useState(false);
 
@@ -46,10 +48,22 @@ const SignUp = () => {
       if (response.data.success) {
         authLogin();
         navigate("/");
+        signupToast();
       }
     } catch (err) {
       console.log(err);
     }
+  };
+
+  const signupToast = () => {
+    toast({
+      title: "Account Created",
+      description: "Your account has been created successfully.",
+      status: "success",
+      duration: 3000,
+      isClosable: true,
+      position: "top-right",
+    });
   };
 
   return (

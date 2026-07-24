@@ -6,6 +6,7 @@ import {
   Heading,
   HStack,
   Text,
+  useToast,
   VStack,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
@@ -15,6 +16,7 @@ import { useEffect } from "react";
 import { useAuth } from "../checkAuth";
 
 const Welcome = () => {
+  const toast = useToast();
   const navigate = useNavigate();
   const { isAuthenticated, authLogout } = useAuth();
 
@@ -33,10 +35,29 @@ const Welcome = () => {
       if (response.data.success) {
         console.log(response.data.message);
         authLogout();
+        logoutToast();
       }
     } catch (err) {
-      console.log(err);
+      toast({
+        title: "Logout Failed",
+        description: "Unable to log out. Please try again.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top-right",
+      });
     }
+  };
+
+  const logoutToast = () => {
+    toast({
+      title: "Logged Out",
+      description: "You have been logged out successfully.",
+      status: "success",
+      duration: 3000,
+      isClosable: true,
+      position: "top-right",
+    });
   };
 
   return (

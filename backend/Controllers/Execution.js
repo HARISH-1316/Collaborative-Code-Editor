@@ -19,7 +19,8 @@ const runners = {
 
 export const executeCode = async (req, res, next) => {
   const { roomId } = req.params;
-  const { input } = req.body;
+  let { input } = req.body;
+  input = input.trim();
   const room = await Room.findOne({ roomId });
   const file = await File.findOne({ room: room.id });
 
@@ -39,9 +40,13 @@ export const executeCode = async (req, res, next) => {
   const { verdict, exitCode, stdout, stderr } = await runner(
     workspacePath,
     input,
+    file.fileName,
   );
 
-  // console.log(stdout, stderr);
+  console.log(file.fileName);
+
+  console.log(stdout, stderr);
+  console.log(")()(");
 
   await cleanupWorkspace(workspacePath);
 

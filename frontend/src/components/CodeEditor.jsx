@@ -1,6 +1,6 @@
-import React, { useRef, useState } from "react";
+import React, { use, useRef, useState } from "react";
 import Editor from "@monaco-editor/react";
-import { Box } from "@chakra-ui/react";
+import { Box, useToast } from "@chakra-ui/react";
 import Split from "react-split";
 import Output from "./Output";
 import { useSocket } from "../SocketContext";
@@ -17,6 +17,7 @@ const CodeEditor = () => {
   const isEdited = useRef(false);
   const { roomId, fileName } = useParams();
   const socket = useSocket();
+  const toast = useToast();
 
   const [code, setCode] = useState("// Write your code here...");
   const [username, setUsername] = useState("");
@@ -25,6 +26,8 @@ const CodeEditor = () => {
   const [language, setLanguage] = useState("");
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [input, setInput] = useState("");
+  const [output, setOutput] = useState("Hello Output");
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     socket.emit("joinRoom", { roomId, username }, (response) => {
@@ -84,8 +87,18 @@ const CodeEditor = () => {
       isEdited.current = false;
     });
 
+    socket.on("userJoined", ({ newUser }) => {
+      userJoinedToast(newUser);
+    });
+
+    socket.on("userLeft", ({ user }) => {
+      userLeftToast(user);
+    });
+
     return () => {
       socket.off("codeChange");
+      socket.off("userJoined");
+      socket.off("userLeft");
     };
   }, [socket]);
 
@@ -108,6 +121,14 @@ const CodeEditor = () => {
         });
       }, 0);
     });
+
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () =>
+      handleSave(),
+    );
+
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () =>
+      runCode(),
+    );
   };
 
   const handleSave = async () => {
@@ -125,6 +146,57 @@ const CodeEditor = () => {
         console.log(response.data.message);
       } else {
         console.log("error occures while saving code");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const userJoinedToast = (newUser) => {
+    console.log(newUser);
+    toast({
+      title: "User Joined",
+      description: `${newUser} joined the room.`,
+      status: "info",
+      duration: 3000,
+      isClosable: true,
+      position: "top-right",
+    });
+  };
+
+  const userLeftToast = (username) => {
+    toast({
+      title: "User Left",
+      description: `${username} left the room.`,
+      status: "info",
+      duration: 3000,
+      isClosable: true,
+      position: "top-right",
+    });
+  };
+
+  const runCode = async () => {
+    const url = `http://localhost:3000/editor/${roomId}/execute`;
+
+    try {
+      console.log("runCode");
+
+      const response = await axios.post(
+        url,
+        { input },
+        { withCredentials: true },
+      );
+
+      const { stdout, stderr } = response.data;
+
+      if (response.data.success) {
+        if (stderr && stderr !== "") {
+          setHasError(true);
+          setOutput(stderr);
+        } else {
+          setHasError(false);
+          setOutput(stdout);
+        }
       }
     } catch (err) {
       console.log(err);
@@ -220,7 +292,7 @@ const CodeEditor = () => {
             >
               <Input input={input} setInput={setInput} />
 
-              <Output editorRef={editorRef} language={language} input={input} />
+              <Output output={output} runCode={runCode} hasError={hasError} />
             </Split>
           </Box>
         </Split>

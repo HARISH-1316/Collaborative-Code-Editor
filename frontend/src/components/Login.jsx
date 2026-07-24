@@ -11,6 +11,7 @@ import {
   InputRightElement,
   Link,
   Text,
+  useToast,
   VStack,
 } from "@chakra-ui/react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
@@ -19,6 +20,7 @@ import axios from "axios";
 import { useAuth } from "../checkAuth";
 
 const Login = () => {
+  const toast = useToast();
   const navigate = useNavigate();
   const { authLogin } = useAuth();
 
@@ -37,20 +39,50 @@ const Login = () => {
   };
 
   const handleSubmit = async () => {
-    console.log(user);
     const url = "http://localhost:3000/login";
+
     try {
-      const response = await axios.post(url, user, { withCredentials: true });
+      const response = await axios.post(url, user, {
+        withCredentials: true,
+      });
+
       if (response.data.success) {
         authLogin();
+        loginToast();
         navigate("/");
-      } else {
-        console.log("Wrong username/password");
       }
     } catch (err) {
-      console.log(err);
-      console.log(err.response);
+      const { status, data } = err.response || {};
+      console.log(err.response, data);
+
+      if (status === 401) {
+        if (data?.code === "INVALID_CREDENTIALS") {
+          invalidCredentialsToast();
+        }
+      }
     }
+  };
+
+  const loginToast = () => {
+    toast({
+      title: "Success",
+      description: "Logged In Successfully.",
+      status: "success",
+      duration: 3000,
+      isClosable: true,
+      position: "top-right",
+    });
+  };
+
+  const invalidCredentialsToast = () => {
+    toast({
+      title: "Login Failed",
+      description: "Incorrect username or password.",
+      status: "error",
+      duration: 3000,
+      isClosable: true,
+      position: "top-right",
+    });
   };
 
   return (
