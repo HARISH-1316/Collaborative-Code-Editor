@@ -13,6 +13,7 @@ import Login from "./components/Login";
 import File from "./components/File";
 import Room from "./components/Room";
 import ProtectedRoute from "./ProtectedRoute";
+import TestDashboard from "./components/TestDashboard";
 
 const App = () => {
   return (

@@ -29,6 +29,7 @@ const CodeEditor = () => {
   const inputRef = useRef("");
   const [output, setOutput] = useState("Hello Output");
   const [hasError, setHasError] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
 
   useEffect(() => {
     socket.emit("joinRoom", { roomId, username }, (response) => {
@@ -194,6 +195,7 @@ const CodeEditor = () => {
       console.log("runCode");
       console.log(inputRef.current, "()");
 
+      setIsRunning(true);
       const response = await axios.post(
         url,
         { input: inputRef.current },
@@ -213,6 +215,8 @@ const CodeEditor = () => {
       }
     } catch (err) {
       console.log(err);
+    } finally {
+      setIsRunning(false);
     }
   };
 
@@ -305,7 +309,12 @@ const CodeEditor = () => {
             >
               <Input input={input} setInput={setInput} inputRef={inputRef} />
 
-              <Output output={output} runCode={runCode} hasError={hasError} />
+              <Output
+                output={output}
+                runCode={runCode}
+                hasError={hasError}
+                isRunning={isRunning}
+              />
             </Split>
           </Box>
         </Split>
