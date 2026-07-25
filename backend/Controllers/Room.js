@@ -30,8 +30,15 @@ export const postRoomFile = async (req, res, next) => {
 
   // 3. Save the file's ObjectId in the room
   room.file = file;
-
   await room.save();
+
+  // 4. Add the room to the user's myRooms
+  req.user.myRooms.unshift({
+    room: room._id,
+    createdAt: new Date(),
+  });
+
+  await req.user.save();
 
   res.json({
     success: true,
@@ -54,6 +61,17 @@ export const getRoom = async (req, res, next) => {
       message: "Room not found",
     });
   }
+
+  req.user.recentRooms = req.user.recentRooms.filter(
+    (r) => r.room.toString() !== room._id.toString(),
+  );
+
+  req.user.recentRooms.unshift({
+    room: room._id,
+    joinedAt: new Date(),
+  });
+
+  await req.user.save();
 
   res.json({
     success: true,

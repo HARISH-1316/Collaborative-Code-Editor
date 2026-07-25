@@ -5,15 +5,16 @@ import {
   postLogin,
   logout,
   checkAuth,
+  me,
 } from "../Controllers/User.js";
 import { isLoggedIn } from "../Middleware.js";
 
 const router = express.Router();
 
-router.post("/signup", postSignup);
+router.post("/auth/signup", postSignup);
 
 router.post(
-  "/login",
+  "/auth/login",
   passport.authenticate("local", {
     failWithError: true,
   }),
@@ -26,7 +27,9 @@ router.post(
     });
   },
 );
-router.get("/logout", logout);
+router.get("/auth/logout", logout);
+
+router.get("/auth/me", me);
 
 router.get("/checkAuth", isLoggedIn, checkAuth);
 

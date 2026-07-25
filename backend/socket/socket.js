@@ -22,7 +22,7 @@ export const registerSocket = (io, onlineUsers) => {
   io.on("connection", async (socket) => {
     console.log(`A user connected with ${socket.id}`);
 
-    socket.on("joinRoom", async ({ roomId, username }, callback, req) => {
+    socket.on("joinRoom", async ({ roomId, username }, callback) => {
       const room = await Room.findOne({ roomId }).populate("file");
       if (!room) {
         return callback({

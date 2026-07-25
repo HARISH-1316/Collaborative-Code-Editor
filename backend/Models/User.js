@@ -10,12 +10,43 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+
     phone: {
       type: String,
       required: true,
       unique: true,
       trim: true,
     },
+
+    // Rooms created/owned by the user
+    myRooms: [
+      {
+        room: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Room",
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
+
+    // Rooms joined by the user
+    recentRooms: [
+      {
+        room: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Room",
+          required: true,
+        },
+
+        joinedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
   },
   {
     timestamps: true,

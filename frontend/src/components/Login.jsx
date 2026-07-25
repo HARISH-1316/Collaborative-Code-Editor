@@ -39,7 +39,7 @@ const Login = () => {
   };
 
   const handleSubmit = async () => {
-    const url = "http://localhost:3000/login";
+    const url = "http://localhost:3000/auth/login";
 
     try {
       const response = await axios.post(url, user, {
@@ -169,7 +169,7 @@ const Login = () => {
 
           <Text color="gray.300">
             Don't have an account?{" "}
-            <Link color="cyan.300" onClick={() => navigate("/signup")}>
+            <Link color="cyan.300" onClick={() => navigate("/auth/signup")}>
               Sign Up
             </Link>
           </Text>

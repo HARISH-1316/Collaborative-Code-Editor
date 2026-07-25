@@ -31,7 +31,7 @@ const Navbar = ({ roomName, roomId, owner, users = [] }) => {
       if (response.success) {
         roomLeftToast();
         console.log(response.message);
-        navigate("/lobby");
+        navigate("/");
       }
     });
   };

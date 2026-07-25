@@ -17,16 +17,6 @@ app.use(
   }),
 );
 
-// Socket connection
-import { registerSocket } from "./socket/socket.js";
-const io = new Server(server, {
-  cors: {
-    origin: "http://localhost:5173",
-    credentials: true,
-  },
-});
-registerSocket(io, onlineUsers);
-
 // Mongoose
 import mongoose from "mongoose";
 const DB_URL = "mongodb://127.0.0.1:27017/cce";
@@ -53,7 +43,21 @@ const sessionOptions = {
   },
 };
 
-app.use(session(sessionOptions));
+const sessionMiddleware = session(sessionOptions);
+app.use(sessionMiddleware);
+
+// Socket connection
+import { registerSocket } from "./socket/socket.js";
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    credentials: true,
+  },
+});
+io.use((socket, next) => {
+  sessionMiddleware(socket.request, {}, next);
+});
+registerSocket(io, onlineUsers);
 
 // Passport
 import User from "./Models/User.js";

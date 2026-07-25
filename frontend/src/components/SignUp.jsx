@@ -42,7 +42,7 @@ const SignUp = () => {
 
   const handleSubmit = async () => {
     console.log(user);
-    const url = "http://localhost:3000/signup";
+    const url = "http://localhost:3000/auth/signup";
     try {
       const response = await axios.post(url, user, { withCredentials: true });
       if (response.data.success) {
@@ -201,7 +201,7 @@ const SignUp = () => {
 
           <Text color="gray.300">
             Already have an account?{" "}
-            <Link color="cyan.300" onClick={() => navigate("/login")}>
+            <Link color="cyan.300" onClick={() => navigate("/auth/login")}>
               Login
             </Link>
           </Text>

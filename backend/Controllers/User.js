@@ -44,6 +44,42 @@ export const logout = (req, res, next) => {
   });
 };
 
+export const me = async (req, res, next) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    const user = await User.findById(req.user._id)
+      .populate({
+        path: "myRooms.room",
+        select: "roomId roomName file",
+        populate: {
+          path: "file",
+          select: "fileName",
+        },
+      })
+      .populate({
+        path: "recentRooms.room",
+        select: "roomId roomName file",
+        populate: {
+          path: "file",
+          select: "fileName",
+        },
+      });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json({
+      success: true,
+      username: user.username,
+      myRooms: user.myRooms,
+      recentRooms: user.recentRooms,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const checkAuth = (req, res, next) => {
   res.json({
     success: true,
