@@ -4,19 +4,19 @@ import axios from "axios";
 import {
   Box,
   Flex,
-  HStack,
   Text,
   Button,
   Spinner,
   Center,
-  VStack,
-  Icon,
+  HStack,
 } from "@chakra-ui/react";
-import { FiPlus, FiLogIn } from "react-icons/fi";
+
 import DashboardNavbar from "./DashboardNavbar";
 import DashboardSidebar from "./DashboardSidebar";
-import { Rooms } from "./userRooms";
 import Lobby from "./Lobby";
+import { Rooms } from "./userRooms";
+import { MyRooms } from "./MyRooms";
+import { RecentRooms } from "./RecentRooms";
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
@@ -25,21 +25,20 @@ const Dashboard = () => {
 
   const navigate = useNavigate();
 
-  // Fetch user details from backend when Dashboard mounts
   useEffect(() => {
     const fetchUserData = async () => {
-      const url = "http://localhost:3000/auth/me";
       try {
-        const response = await axios.get(url, { withCredentials: true });
+        const { data } = await axios.get("http://localhost:3000/auth/me", {
+          withCredentials: true,
+        });
 
-        if (response.data && response.data.username) {
-          console.log(response.data);
-          setUser(response.data);
+        if (data?.username) {
+          setUser(data);
         } else {
           setUser(null);
         }
-      } catch (error) {
-        console.error("Failed to fetch user:", error);
+      } catch (err) {
+        console.error(err);
         setUser(null);
       } finally {
         setLoading(false);
@@ -55,39 +54,29 @@ const Dashboard = () => {
         withCredentials: true,
       });
     } catch (err) {
-      console.error("Logout error:", err);
+      console.error(err);
     }
+
     setUser(null);
     navigate("/");
   };
 
-  const handleLogin = () => {
-    navigate("/auth/login");
-  };
-
-  const handleSignup = () => {
-    navigate("/auth/signup");
-  };
-
-  const handleSidebarChange = (section) => {
-    setActiveSection(section);
-  };
+  const handleLogin = () => navigate("/auth/login");
+  const handleSignup = () => navigate("/auth/signup");
 
   if (loading) {
     return (
-      <Center bg="gray.900" minH="100vh">
+      <Center minH="100vh" bg="gray.900">
         <Spinner size="xl" color="blue.500" />
       </Center>
     );
   }
 
-  // Extract rooms data from user, limit to 5 each
-  const myRooms = user?.myRooms?.slice(0, 5) || [];
-  const recentRooms = user?.recentRooms?.slice(0, 5) || [];
+  const myRooms = user?.myRooms || [];
+  const recentRooms = user?.recentRooms || [];
 
   return (
     <Box bg="gray.900" minH="100vh" color="white">
-      {/* Pass user and auth handlers to Navbar */}
       <DashboardNavbar
         user={user}
         onLogout={handleLogout}
@@ -98,26 +87,33 @@ const Dashboard = () => {
       <Flex h="calc(100vh - 70px)">
         <DashboardSidebar
           active={activeSection}
-          onChange={handleSidebarChange}
+          setActiveSection={setActiveSection}
         />
 
         <Box flex={1} p={8} overflowY="auto">
           {user ? (
             <>
-              <Text fontSize="3xl" fontWeight="bold">
+              <Text fontSize="3xl" fontWeight="bold" mb={8}>
                 👋 Welcome, {user.username}
               </Text>
 
-              <HStack mt={8} spacing={4}>
-                <Lobby />
-              </HStack>
+              {activeSection === "Dashboard" && (
+                <>
+                  <Lobby />
 
-              {/* Render Rooms with real data from /auth/me */}
-              <Rooms
-                myRooms={myRooms}
-                recentRooms={recentRooms}
-                activeSection={activeSection}
-              />
+                  <Rooms
+                    myRooms={myRooms}
+                    recentRooms={recentRooms}
+                    setActiveSection={setActiveSection}
+                  />
+                </>
+              )}
+
+              {activeSection === "MyRooms" && <MyRooms rooms={myRooms} />}
+
+              {activeSection === "RecentRooms" && (
+                <RecentRooms rooms={recentRooms} />
+              )}
             </>
           ) : (
             <Center h="60vh">
@@ -125,10 +121,12 @@ const Dashboard = () => {
                 <Text fontSize="2xl" fontWeight="bold" mb={4} color="gray.300">
                   Please log in to access your dashboard and rooms.
                 </Text>
+
                 <HStack justify="center" spacing={4}>
                   <Button colorScheme="blue" onClick={handleLogin}>
                     Log In
                   </Button>
+
                   <Button
                     variant="outline"
                     colorScheme="blue"

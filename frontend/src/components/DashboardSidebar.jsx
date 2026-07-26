@@ -1,23 +1,29 @@
 import { Box, Flex, Icon, Text, VStack } from "@chakra-ui/react";
 
 import { FiHome, FiFolder, FiClock } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 const menuItems = [
   {
     title: "Dashboard",
     icon: FiHome,
+    path: "Dashboard",
   },
   {
     title: "My Rooms",
     icon: FiFolder,
+    path: "MyRooms",
   },
   {
-    title: "Recently Joined",
+    title: "Recent Rooms",
     icon: FiClock,
+    path: "RecentRooms",
   },
 ];
 
-const DashboardSidebar = ({ active = "Dashboard", onChange }) => {
+const DashboardSidebar = ({ active = "Dashboard", setActiveSection }) => {
+  const navigate = useNavigate();
+
   return (
     <Box
       w="260px"
@@ -29,7 +35,7 @@ const DashboardSidebar = ({ active = "Dashboard", onChange }) => {
     >
       <VStack spacing={2} align="stretch">
         {menuItems.map((item) => {
-          const isActive = active === item.title;
+          const isActive = active === item.path;
 
           return (
             <Flex
@@ -47,7 +53,9 @@ const DashboardSidebar = ({ active = "Dashboard", onChange }) => {
               _hover={{
                 bg: isActive ? "blue.500" : "gray.800",
               }}
-              onClick={() => onChange(item.title)}
+              onClick={() => {
+                setActiveSection(item.path);
+              }}
             >
               <Icon as={item.icon} boxSize={5} />
 

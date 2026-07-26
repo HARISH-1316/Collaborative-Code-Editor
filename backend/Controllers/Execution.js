@@ -2,7 +2,7 @@ import { runCpp } from "../execution/runners/cppRunner.js";
 import { runJava } from "../execution/runners/javaRunner.js";
 import { runJS } from "../execution/runners/jsRunner.js";
 import { runPython } from "../execution/runners/pythonRunner.js";
-import { runTS } from "../execution/runners/tsRunner.js";
+import { runC } from "../execution/runners/cRunner.js";
 import { cleanupWorkspace } from "../execution/workspace/cleanupWorkspace.js";
 import { createProject } from "../execution/workspace/createWorkspace.js";
 import { populateProject } from "../execution/workspace/populateWorkspace.js";
@@ -14,7 +14,7 @@ const runners = {
   cpp: runCpp,
   python: runPython,
   javascript: runJS,
-  typescript: runTS,
+  c: runC,
 };
 
 export const executeCode = async (req, res, next) => {

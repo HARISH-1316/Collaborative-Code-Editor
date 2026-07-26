@@ -14,6 +14,7 @@ import Room from "./components/Room";
 import ProtectedRoute from "./ProtectedRoute";
 import Dashboard from "./components/Dashboard";
 import JoinRoom from "./components/JoinRoom";
+import MyRooms from "./components/MyRooms";
 
 const App = () => {
   return (

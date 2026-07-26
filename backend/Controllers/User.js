@@ -55,7 +55,7 @@ export const me = async (req, res, next) => {
         select: "roomId roomName file",
         populate: {
           path: "file",
-          select: "fileName",
+          select: "fileName language",
         },
       })
       .populate({
@@ -63,7 +63,7 @@ export const me = async (req, res, next) => {
         select: "roomId roomName file",
         populate: {
           path: "file",
-          select: "fileName",
+          select: "fileName language",
         },
       });
     if (!user) {

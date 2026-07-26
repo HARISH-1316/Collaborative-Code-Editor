@@ -12,7 +12,7 @@ import { ChevronDownIcon, CheckIcon } from "@chakra-ui/icons";
 
 const languages = {
   javascript: [".js", "JavaScript"],
-  typescript: [".ts", "TypeScript"],
+  c: [".c", "C"],
   python: [".py", "Python"],
   java: [".java", "Java"],
   cpp: [".cpp", "C++"],

@@ -3,7 +3,7 @@ import path from "path";
 
 const extensions = {
   javascript: "js",
-  typescript: "ts",
+  c: "c",
   java: "java",
   cpp: "cpp",
   python: "py",
