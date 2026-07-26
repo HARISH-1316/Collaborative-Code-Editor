@@ -1,6 +1,7 @@
 import express from "express";
 import { isLoggedIn } from "../Middleware.js";
 import {
+  deleteRoom,
   getLobby,
   // getMyRooms,
   getRoom,
@@ -18,5 +19,7 @@ router
   .route("/editor/:roomId/file/:fileName")
   .get(isLoggedIn, getRoom)
   .post(isLoggedIn, postCode);
+
+router.delete("/editor/:roomId/delete", isLoggedIn, deleteRoom);
 
 export default router;

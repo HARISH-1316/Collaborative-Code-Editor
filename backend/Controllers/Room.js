@@ -110,3 +110,58 @@ export const postCode = async (req, res, next) => {
     message: "Code Saved successfully",
   });
 };
+
+export const deleteRoom = async (req, res, next) => {
+  console.log("abcd");
+  try {
+    const { roomId } = req.params;
+
+    const room = await Room.findOne({ roomId });
+
+    if (!room) {
+      return res.status(404).json({
+        success: false,
+        message: "Room not found",
+      });
+    }
+
+    // Delete associated file (if your Room has one)
+    if (room.file) {
+      await File.findByIdAndDelete(room.file);
+    }
+
+    // Delete room
+    await Room.findByIdAndDelete(room.id);
+
+    // Remove from owner's myRooms
+    await User.updateMany(
+      {},
+      {
+        $pull: {
+          myRooms: {
+            room: room._id,
+          },
+        },
+      },
+    );
+
+    // Remove from everyone's recentRooms
+    await User.updateMany(
+      {},
+      {
+        $pull: {
+          recentRooms: {
+            room: room._id,
+          },
+        },
+      },
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Room deleted successfully.",
+    });
+  } catch (err) {
+    next(err);
+  }
+};

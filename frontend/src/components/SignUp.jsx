@@ -5,6 +5,7 @@ import {
   Flex,
   FormControl,
   FormLabel,
+  FormErrorMessage,
   Heading,
   Input,
   Link,
@@ -24,6 +25,13 @@ const SignUp = () => {
   const { authLogin } = useAuth();
   const toast = useToast();
 
+  const [errors, setErrors] = useState({
+    username: "",
+    email: "",
+    phone: "",
+    password: "",
+  });
+
   const [show, setShow] = useState(false);
 
   const [user, setUser] = useState({
@@ -34,21 +42,70 @@ const SignUp = () => {
   });
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
+
     setUser((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [name]:
+        value.trim() === ""
+          ? `${name.charAt(0).toUpperCase() + name.slice(1)} is required`
+          : "",
     }));
   };
 
   const handleSubmit = async () => {
-    console.log(user);
+    const newErrors = {
+      username: "",
+      email: "",
+      phone: "",
+      password: "",
+    };
+
+    if (!user.username.trim()) {
+      newErrors.username = "Username is required";
+    }
+
+    if (!user.email.trim()) {
+      newErrors.email = "Email is required";
+    }
+
+    if (!user.phone.trim()) {
+      newErrors.phone = "Phone number is required";
+    } else if (!/^[6-9]\d{9}$/.test(user.phone)) {
+      newErrors.phone = "Enter a valid 10-digit phone number";
+    }
+
+    if (!user.password.trim()) {
+      newErrors.password = "Password is required";
+    }
+
+    setErrors(newErrors);
+
+    if (
+      newErrors.username ||
+      newErrors.email ||
+      newErrors.phone ||
+      newErrors.password
+    ) {
+      return;
+    }
+
     const url = "http://localhost:3000/auth/signup";
+
     try {
-      const response = await axios.post(url, user, { withCredentials: true });
+      const response = await axios.post(url, user, {
+        withCredentials: true,
+      });
+
       if (response.data.success) {
         authLogin();
-        navigate("/");
         signupToast();
+        navigate("/");
       }
     } catch (err) {
       console.log(err);
@@ -97,8 +154,9 @@ const SignUp = () => {
             Join the Collaborative Code Editor
           </Text>
 
-          <FormControl>
+          <FormControl isInvalid={!!errors.username}>
             <FormLabel color="gray.200">Username</FormLabel>
+
             <Input
               name="username"
               placeholder="Enter username"
@@ -107,16 +165,20 @@ const SignUp = () => {
               bg="whiteAlpha.100"
               borderColor="gray.600"
               color="white"
+              errorBorderColor="red.400"
               _placeholder={{ color: "gray.400" }}
               _focus={{
                 borderColor: "cyan.400",
                 boxShadow: "0 0 10px cyan",
               }}
             />
+
+            <FormErrorMessage>{errors.username}</FormErrorMessage>
           </FormControl>
 
-          <FormControl>
+          <FormControl isInvalid={!!errors.email}>
             <FormLabel color="gray.200">Email</FormLabel>
+
             <Input
               type="email"
               name="email"
@@ -126,15 +188,18 @@ const SignUp = () => {
               bg="whiteAlpha.100"
               borderColor="gray.600"
               color="white"
+              errorBorderColor="red.400"
               _placeholder={{ color: "gray.400" }}
               _focus={{
                 borderColor: "cyan.400",
                 boxShadow: "0 0 10px cyan",
               }}
             />
+
+            <FormErrorMessage>{errors.email}</FormErrorMessage>
           </FormControl>
 
-          <FormControl>
+          <FormControl isInvalid={!!errors.phone}>
             <FormLabel color="gray.200">Phone Number</FormLabel>
 
             <Input
@@ -144,20 +209,22 @@ const SignUp = () => {
               value={user.phone}
               onChange={handleChange}
               maxLength={10}
-              pattern="[0-9]{10}"
               inputMode="numeric"
               bg="whiteAlpha.100"
               borderColor="gray.600"
               color="white"
+              errorBorderColor="red.400"
               _placeholder={{ color: "gray.400" }}
               _focus={{
                 borderColor: "cyan.400",
                 boxShadow: "0 0 10px cyan",
               }}
             />
+
+            <FormErrorMessage>{errors.phone}</FormErrorMessage>
           </FormControl>
 
-          <FormControl>
+          <FormControl isInvalid={!!errors.password}>
             <FormLabel color="gray.200">Password</FormLabel>
 
             <InputGroup>
@@ -170,6 +237,7 @@ const SignUp = () => {
                 bg="whiteAlpha.100"
                 borderColor="gray.600"
                 color="white"
+                errorBorderColor="red.400"
                 _placeholder={{ color: "gray.400" }}
                 _focus={{
                   borderColor: "cyan.400",
@@ -180,13 +248,15 @@ const SignUp = () => {
               <InputRightElement>
                 <Button
                   variant="ghost"
-                  onClick={() => setShow(!show)}
                   color="gray.300"
+                  onClick={() => setShow(!show)}
                 >
                   {show ? <ViewOffIcon /> : <ViewIcon />}
                 </Button>
               </InputRightElement>
             </InputGroup>
+
+            <FormErrorMessage>{errors.password}</FormErrorMessage>
           </FormControl>
 
           <Button

@@ -5,6 +5,7 @@ import {
   Flex,
   FormControl,
   FormLabel,
+  FormErrorMessage,
   Heading,
   Input,
   InputGroup,
@@ -23,6 +24,10 @@ const Login = () => {
   const toast = useToast();
   const navigate = useNavigate();
   const { authLogin } = useAuth();
+  const [errors, setErrors] = useState({
+    username: "",
+    password: "",
+  });
 
   const [show, setShow] = useState(false);
 
@@ -32,13 +37,41 @@ const Login = () => {
   });
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
+
     setUser((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [name]: value.trim()
+        ? ""
+        : `${name === "username" ? "Username" : "Password"} is required`,
     }));
   };
 
   const handleSubmit = async () => {
+    const newErrors = {
+      username: "",
+      password: "",
+    };
+
+    if (!user.username.trim()) {
+      newErrors.username = "Username is required";
+    }
+
+    if (!user.password.trim()) {
+      newErrors.password = "Password is required";
+    }
+
+    setErrors(newErrors);
+
+    if (newErrors.username || newErrors.password) {
+      return;
+    }
+
     const url = "http://localhost:3000/auth/login";
 
     try {
@@ -53,12 +86,9 @@ const Login = () => {
       }
     } catch (err) {
       const { status, data } = err.response || {};
-      console.log(err.response, data);
 
-      if (status === 401) {
-        if (data?.code === "INVALID_CREDENTIALS") {
-          invalidCredentialsToast();
-        }
+      if (status === 401 && data?.code === "INVALID_CREDENTIALS") {
+        invalidCredentialsToast();
       }
     }
   };
@@ -112,7 +142,7 @@ const Login = () => {
             Login to continue coding with your team.
           </Text>
 
-          <FormControl>
+          <FormControl isInvalid={!!errors.username}>
             <FormLabel color="gray.200">Username</FormLabel>
 
             <Input
@@ -128,10 +158,13 @@ const Login = () => {
                 borderColor: "cyan.400",
                 boxShadow: "0 0 10px cyan",
               }}
+              errorBorderColor="red.400"
             />
+
+            <FormErrorMessage>{errors.username}</FormErrorMessage>
           </FormControl>
 
-          <FormControl>
+          <FormControl isInvalid={!!errors.password}>
             <FormLabel color="gray.200">Password</FormLabel>
 
             <InputGroup>
@@ -149,6 +182,7 @@ const Login = () => {
                   borderColor: "cyan.400",
                   boxShadow: "0 0 10px cyan",
                 }}
+                errorBorderColor="red.400"
               />
 
               <InputRightElement>
@@ -161,6 +195,8 @@ const Login = () => {
                 </Button>
               </InputRightElement>
             </InputGroup>
+
+            <FormErrorMessage>{errors.password}</FormErrorMessage>
           </FormControl>
 
           <Button colorScheme="blue" size="lg" w="100%" onClick={handleSubmit}>
