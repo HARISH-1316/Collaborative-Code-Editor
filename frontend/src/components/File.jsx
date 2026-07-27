@@ -8,7 +8,16 @@ import {
   VStack,
 } from "@chakra-ui/react";
 
-const File = ({ setFileName, setLanguage, setRoomName, handleCreate }) => {
+const File = ({
+  mode,
+  roomName,
+  fileName,
+  language,
+  setRoomName,
+  setFileName,
+  setLanguage,
+  handleCreate,
+}) => {
   return (
     <Box
       position="absolute"
@@ -25,6 +34,7 @@ const File = ({ setFileName, setLanguage, setRoomName, handleCreate }) => {
             <FormLabel>Room Name</FormLabel>
             <Input
               placeholder="e.g. My Project"
+              value={roomName}
               onChange={(e) => setRoomName(e.target.value)}
             />
           </FormControl>
@@ -33,23 +43,28 @@ const File = ({ setFileName, setLanguage, setRoomName, handleCreate }) => {
             <FormLabel>File Name</FormLabel>
             <Input
               placeholder="e.g. index.js"
+              value={fileName}
               onChange={(e) => setFileName(e.target.value)}
             />
           </FormControl>
 
           <FormControl>
             <FormLabel>Language</FormLabel>
-            <Select onChange={(e) => setLanguage(e.target.value)}>
+
+            <Select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+            >
               <option value="javascript">JavaScript</option>
               <option value="c">C</option>
-              <option value="python">Python</option>
-              <option value="java">Java</option>
               <option value="cpp">C++</option>
+              <option value="java">Java</option>
+              <option value="python">Python</option>
             </Select>
           </FormControl>
 
           <Button colorScheme="blue" w="100%" onClick={handleCreate}>
-            Create File
+            {mode === "create" ? "Create File" : "Save Changes"}
           </Button>
         </VStack>
       </Box>

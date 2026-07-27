@@ -40,7 +40,16 @@ const App = () => {
             path="/editor"
             element={
               <ProtectedRoute>
-                <Room />
+                <Room mode="create" />
+              </ProtectedRoute>
+            }
+          ></Route>
+
+          <Route
+            path="/editor/:roomId/file/:fileName/edit"
+            element={
+              <ProtectedRoute>
+                <Room mode="edit" />
               </ProtectedRoute>
             }
           ></Route>

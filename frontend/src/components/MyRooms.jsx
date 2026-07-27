@@ -63,7 +63,7 @@ export const MyRooms = ({ rooms }) => {
   const handleEditRoom = (e, room) => {
     e.stopPropagation();
 
-    navigate(`/rooms/${room.roomId}/edit`);
+    navigate(`/editor/${room.roomId}/file/${room.file?.fileName}/edit`);
   };
 
   // ================= DELETE =================

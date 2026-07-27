@@ -50,6 +50,7 @@ export const postRoomFile = async (req, res, next) => {
 
 export const getRoom = async (req, res, next) => {
   const { roomId, fileName } = req.params;
+  console.log(roomId, fileName);
 
   const room = await Room.findOne({ roomId }).populate("owner");
 
@@ -111,8 +112,53 @@ export const postCode = async (req, res, next) => {
   });
 };
 
+export const editRoom = async (req, res, next) => {
+  try {
+    const { roomId } = req.params;
+    const { roomName, fileName, language } = req.body;
+
+    // Find the room using the public roomId
+    const room = await Room.findOne({ roomId });
+
+    if (!room) {
+      return res.status(404).json({
+        success: false,
+        message: "Room not found",
+      });
+    }
+
+    // Update room name
+    room.roomName = roomName;
+
+    // Find the file belonging to this room
+    const file = await File.findOne({ room: room._id });
+
+    if (!file) {
+      return res.status(404).json({
+        success: false,
+        message: "File not found",
+      });
+    }
+
+    // Update file details
+    file.fileName = fileName;
+    file.language = language;
+
+    await room.save();
+    await file.save();
+
+    res.json({
+      success: true,
+      message: "Room updated successfully",
+      roomId: room.roomId,
+      fileName: file.fileName,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const deleteRoom = async (req, res, next) => {
-  console.log("abcd");
   try {
     const { roomId } = req.params;
 
