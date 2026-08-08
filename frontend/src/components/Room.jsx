@@ -19,6 +19,13 @@ const Room = ({ mode }) => {
   const [fileName, setFileName] = useState("");
   const [language, setLanguage] = useState("javascript");
 
+  // NEW
+  const [errors, setErrors] = useState({
+    roomName: "",
+    fileName: "",
+    language: "",
+  });
+
   useEffect(() => {
     if (mode !== "edit") return;
 
@@ -34,13 +41,11 @@ const Room = ({ mode }) => {
         console.log(response.data);
 
         if (response.data.success) {
-          if (response.data.success) {
-            const room = response.data.Room;
+          const room = response.data.room;
 
-            setRoomName(room.roomName);
-            setFileName(room.fileName);
-            setLanguage(room.language);
-          }
+          setRoomName(room.roomName);
+          setFileName(room.fileName);
+          setLanguage(room.language);
         }
       } catch (err) {
         console.log(err);
@@ -56,7 +61,18 @@ const Room = ({ mode }) => {
         ? "http://localhost:3000/editor"
         : `http://localhost:3000/editor/${roomId}/file/${urlFileName}/edit`;
 
+    // NEW
+    setErrors({
+      roomName: "",
+      fileName: "",
+      language: "",
+    });
+
     try {
+      console.log(url);
+      console.log(mode);
+      console.log(roomName, fileName, language);
+
       const response =
         mode === "create"
           ? await axios.post(
@@ -99,6 +115,22 @@ const Room = ({ mode }) => {
       }
     } catch (err) {
       console.log(err);
+
+      if (err.response?.data?.errors) {
+        setErrors(err.response.data.errors);
+      } else {
+        toast({
+          title: "Error",
+          description:
+            err.response?.data?.message ||
+            err.response?.data?.error ||
+            "Something went wrong.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "top-right",
+        });
+      }
     }
   };
 
@@ -134,6 +166,7 @@ const Room = ({ mode }) => {
           roomName={roomName}
           fileName={fileName}
           language={language}
+          errors={errors} // NEW
           setRoomName={setRoomName}
           setFileName={setFileName}
           setLanguage={setLanguage}

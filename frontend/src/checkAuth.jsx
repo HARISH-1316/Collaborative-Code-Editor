@@ -1,3 +1,4 @@
+import { useToast } from "@chakra-ui/react";
 import axios from "axios";
 import {
   createContext,
@@ -12,6 +13,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const toast = useToast();
 
   const checkAuth = useCallback(async () => {
     try {
@@ -53,7 +55,14 @@ export const AuthProvider = ({ children }) => {
         },
       );
     } catch (err) {
-      console.log(err);
+      toast({
+        title: "Logout Failed",
+        description: "An error occurred during logout. Please try again.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top-right",
+      });
     }
 
     setIsAuthenticated(false);

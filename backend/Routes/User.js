@@ -1,5 +1,6 @@
 import express from "express";
 import passport from "passport";
+
 import {
   postSignup,
   postLogin,
@@ -7,18 +8,28 @@ import {
   checkAuth,
   me,
 } from "../Controllers/User.js";
-import { isLoggedIn } from "../Middleware.js";
+
+import { isLoggedIn, validateSignup, validateLogin } from "../Middleware.js";
+
+import wrapAsync from "../utils/wrapAsync.js";
 
 const router = express.Router();
 
-router.post("/auth/signup", postSignup);
+/* ==========================
+   Signup
+========================== */
+router.post("/auth/signup", validateSignup, wrapAsync(postSignup));
 
+/* ==========================
+   Login
+========================== */
 router.post(
   "/auth/login",
+  validateLogin,
   passport.authenticate("local", {
     failWithError: true,
   }),
-  postLogin,
+  wrapAsync(postLogin),
   (err, req, res, next) => {
     return res.status(401).json({
       success: false,
@@ -27,10 +38,20 @@ router.post(
     });
   },
 );
-router.get("/auth/logout", logout);
 
-router.get("/auth/me", me);
+/* ==========================
+   Logout
+========================== */
+router.get("/auth/logout", wrapAsync(logout));
 
-router.get("/checkAuth", isLoggedIn, checkAuth);
+/* ==========================
+   Current User
+========================== */
+router.get("/auth/me", wrapAsync(me));
+
+/* ==========================
+   Check Authentication
+========================== */
+router.get("/checkAuth", isLoggedIn, wrapAsync(checkAuth));
 
 export default router;

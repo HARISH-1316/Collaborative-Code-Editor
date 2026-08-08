@@ -38,7 +38,19 @@ const Dashboard = () => {
           setUser(null);
         }
       } catch (err) {
-        console.error(err);
+        if (err.response?.status !== 401) {
+          toast({
+            title: "Unable to Load User",
+            description:
+              err.response?.data?.message ||
+              "An error occurred while fetching your account information.",
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+            position: "top-right",
+          });
+        }
+
         setUser(null);
       } finally {
         setLoading(false);
@@ -54,7 +66,14 @@ const Dashboard = () => {
         withCredentials: true,
       });
     } catch (err) {
-      console.error(err);
+      toast({
+        title: "Logout Failed",
+        description: "An error occurred during logout. Please try again.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top-right",
+      });
     }
 
     setUser(null);

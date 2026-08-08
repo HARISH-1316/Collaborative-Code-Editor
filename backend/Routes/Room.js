@@ -1,29 +1,53 @@
 import express from "express";
-import { isLoggedIn } from "../Middleware.js";
+
+import {
+  isLoggedIn,
+  validateCreateRoom,
+  validateEditRoom,
+} from "../Middleware.js";
+
 import {
   deleteRoom,
   editRoom,
-  getLobby,
   getRoom,
   postCode,
   postRoomFile,
 } from "../Controllers/Room.js";
 
+import wrapAsync from "../utils/wrapAsync.js";
+
 const router = express.Router();
 
-router.get("/lobby", isLoggedIn, getLobby);
+/* ==========================
+   Create Room
+========================== */
 
-router.post("/editor", isLoggedIn, postRoomFile);
+router.post("/editor", isLoggedIn, validateCreateRoom, wrapAsync(postRoomFile));
 
-router.route("/editor/:roomId");
+/* ==========================
+   Get Room / Save Code
+========================== */
 
 router
   .route("/editor/:roomId/file/:fileName")
-  .get(isLoggedIn, getRoom)
-  .post(isLoggedIn, postCode);
+  .get(isLoggedIn, wrapAsync(getRoom))
+  .post(isLoggedIn, wrapAsync(postCode));
 
-router.patch("/editor/:roomId/file/:fileName/edit", isLoggedIn, editRoom);
+/* ==========================
+   Edit Room
+========================== */
 
-router.delete("/editor/:roomId/delete", isLoggedIn, deleteRoom);
+router.patch(
+  "/editor/:roomId/file/:fileName/edit",
+  isLoggedIn,
+  validateEditRoom,
+  wrapAsync(editRoom),
+);
+
+/* ==========================
+   Delete Room
+========================== */
+
+router.delete("/editor/:roomId/delete", isLoggedIn, wrapAsync(deleteRoom));
 
 export default router;

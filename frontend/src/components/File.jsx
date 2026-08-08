@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   FormControl,
+  FormErrorMessage,
   FormLabel,
   Input,
   Select,
@@ -13,6 +14,7 @@ const File = ({
   roomName,
   fileName,
   language,
+  errors,
   setRoomName,
   setFileName,
   setLanguage,
@@ -30,25 +32,27 @@ const File = ({
     >
       <Box bg="gray.800" color="white" p={6} rounded="lg" w="400px" shadow="xl">
         <VStack spacing={4}>
-          <FormControl>
+          <FormControl isInvalid={!!errors.roomName}>
             <FormLabel>Room Name</FormLabel>
             <Input
               placeholder="e.g. My Project"
               value={roomName}
               onChange={(e) => setRoomName(e.target.value)}
             />
+            <FormErrorMessage>{errors.roomName}</FormErrorMessage>
           </FormControl>
 
-          <FormControl>
+          <FormControl isInvalid={!!errors.fileName}>
             <FormLabel>File Name</FormLabel>
             <Input
               placeholder="e.g. index.js"
               value={fileName}
               onChange={(e) => setFileName(e.target.value)}
             />
+            <FormErrorMessage>{errors.fileName}</FormErrorMessage>
           </FormControl>
 
-          <FormControl>
+          <FormControl isInvalid={!!errors.language}>
             <FormLabel>Language</FormLabel>
 
             <Select
@@ -61,6 +65,8 @@ const File = ({
               <option value="java">Java</option>
               <option value="python">Python</option>
             </Select>
+
+            <FormErrorMessage>{errors.language}</FormErrorMessage>
           </FormControl>
 
           <Button colorScheme="blue" w="100%" onClick={handleCreate}>

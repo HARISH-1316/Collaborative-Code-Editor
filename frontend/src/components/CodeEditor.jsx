@@ -56,22 +56,35 @@ const CodeEditor = () => {
         });
 
         if (response.data.success) {
-          const { Room, User } = response.data;
+          const { room, user } = response.data;
 
-          console.log(Room);
-          console.log(User);
+          console.log(room);
+          console.log(user);
 
-          setUsername(User.username);
-          setRoomName(Room.roomName);
-          setRoomOwner(Room.roomOwner);
-          setCode(Room.content);
-          setLanguage(Room.language);
+          setUsername(user.username);
+          setRoomName(room.roomName);
+          setRoomOwner(room.roomOwner);
+          setCode(room.content);
+          setLanguage(room.language);
 
-          const currentUsername = User.username;
+          const currentUsername = user.username;
           getOnlineUsers(currentUsername);
         }
       } catch (err) {
-        console.log(err);
+        toast({
+          title: "Unable to Open Room",
+          description:
+            err.response?.data?.message ||
+            "An error occurred while loading the room.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "top-right",
+        });
+
+        setTimeout(() => {
+          navigate("/");
+        }, 2000);
       }
     };
 
@@ -151,7 +164,17 @@ const CodeEditor = () => {
         console.log("error occures while saving code");
       }
     } catch (err) {
-      console.log(err);
+      const message = err.response?.data?.message;
+      toast({
+        title: "Save Failed",
+        description:
+          message ||
+          "An error occurred while saving your code. Please try again.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top-right",
+      });
     }
   };
 
@@ -214,7 +237,16 @@ const CodeEditor = () => {
         }
       }
     } catch (err) {
-      console.log(err);
+      toast({
+        title: "Execution Failed",
+        description:
+          err.response?.data?.message ||
+          "An error occurred while running your code. Please try again.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top-right",
+      });
     } finally {
       setIsRunning(false);
     }

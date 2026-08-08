@@ -3,11 +3,14 @@ import { runJava } from "../execution/runners/javaRunner.js";
 import { runJS } from "../execution/runners/jsRunner.js";
 import { runPython } from "../execution/runners/pythonRunner.js";
 import { runC } from "../execution/runners/cRunner.js";
+
 import { cleanupWorkspace } from "../execution/workspace/cleanupWorkspace.js";
 import { createProject } from "../execution/workspace/createWorkspace.js";
 import { populateProject } from "../execution/workspace/populateWorkspace.js";
+
 import File from "../Models/File.js";
 import Room from "../Models/Room.js";
+import ExpressError from "../utils/ExpressError.js";
 
 const runners = {
   java: runJava,
@@ -17,46 +20,60 @@ const runners = {
   c: runC,
 };
 
-export const executeCode = async (req, res, next) => {
+export const executeCode = async (req, res) => {
   const { roomId } = req.params;
-  let { input } = req.body;
-  // input = input.trim();
-  console.log(input + "()()()()()()()()()()()(()()()()()()()");
+  const { input = "" } = req.body;
+  console.log(roomId);
+
   const room = await Room.findOne({ roomId });
-  const file = await File.findOne({ room: room.id });
 
-  console.log("controller");
+  if (!room) {
+    throw new ExpressError(404, "Room not found");
+  }
 
-  const workspacePath = await createProject(roomId);
+  const file = await File.findOne({
+    room: room._id,
+  });
 
-  await populateProject(
-    file.fileName,
-    file.language,
-    file.content,
-    workspacePath,
-  );
+  if (!file) {
+    throw new ExpressError(404, "File not found");
+  }
 
   const runner = runners[file.language];
 
-  const { verdict, exitCode, stdout, stderr } = await runner(
-    workspacePath,
-    input,
-    file.fileName,
-  );
+  if (!runner) {
+    throw new ExpressError(400, `Unsupported language: ${file.language}`);
+  }
 
-  console.log(file.fileName);
+  let workspacePath;
 
-  console.log(stdout, stderr);
-  console.log(")()(");
+  try {
+    workspacePath = await createProject(roomId);
 
-  await cleanupWorkspace(workspacePath);
+    await populateProject(
+      file.fileName,
+      file.language,
+      file.content,
+      workspacePath,
+    );
 
-  res.json({
-    success: true,
-    message: "Executed Successfully",
-    verdict,
-    exitCode,
-    stdout,
-    stderr,
-  });
+    const { verdict, exitCode, stdout, stderr } = await runner(
+      workspacePath,
+      input,
+      file.fileName,
+    );
+
+    res.json({
+      success: true,
+      message: "Executed Successfully",
+      verdict,
+      exitCode,
+      stdout,
+      stderr,
+    });
+  } finally {
+    if (workspacePath) {
+      await cleanupWorkspace(workspacePath);
+    }
+  }
 };

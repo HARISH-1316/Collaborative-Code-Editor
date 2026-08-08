@@ -1,5 +1,5 @@
-import { connections } from "mongoose";
 import User from "../Models/User.js";
+import ExpressError from "../utils/ExpressError.js";
 
 export const postSignup = async (req, res, next) => {
   const { username, email, phone, password } = req.body;
@@ -14,12 +14,13 @@ export const postSignup = async (req, res, next) => {
 
   req.login(registeredUser, (err) => {
     if (err) return next(err);
+
     req.session.save((err) => {
       if (err) return next(err);
 
       res.json({
         success: true,
-        message: "signup successful",
+        message: "Signup successful",
       });
     });
   });
@@ -28,15 +29,18 @@ export const postSignup = async (req, res, next) => {
 export const postLogin = async (req, res, next) => {
   req.session.save((err) => {
     if (err) return next(err);
-    res.json({ success: true, message: "login successful" });
+
+    res.json({
+      success: true,
+      message: "Login successful",
+    });
   });
 };
 
-export const logout = (req, res, next) => {
+export const logout = async (req, res, next) => {
   req.logout((err) => {
-    if (err) {
-      return next(err);
-    }
+    if (err) return next(err);
+
     res.json({
       success: true,
       message: "User successfully logged out",
@@ -44,45 +48,44 @@ export const logout = (req, res, next) => {
   });
 };
 
-export const me = async (req, res, next) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-    const user = await User.findById(req.user._id)
-      .populate({
-        path: "myRooms.room",
-        select: "roomId roomName file",
-        populate: {
-          path: "file",
-          select: "fileName language",
-        },
-      })
-      .populate({
-        path: "recentRooms.room",
-        select: "roomId roomName file",
-        populate: {
-          path: "file",
-          select: "fileName language",
-        },
-      });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    res.json({
-      success: true,
-      username: user.username,
-      myRooms: user.myRooms,
-      recentRooms: user.recentRooms,
-    });
-  } catch (error) {
-    next(error);
+export const me = async (req, res) => {
+  if (!req.user) {
+    throw new ExpressError(401, "Unauthorized");
   }
-};
 
-export const checkAuth = (req, res, next) => {
+  const user = await User.findById(req.user._id)
+    .populate({
+      path: "myRooms.room",
+      select: "roomId roomName file",
+      populate: {
+        path: "file",
+        select: "fileName language",
+      },
+    })
+    .populate({
+      path: "recentRooms.room",
+      select: "roomId roomName file",
+      populate: {
+        path: "file",
+        select: "fileName language",
+      },
+    });
+
+  if (!user) {
+    throw new ExpressError(404, "User not found");
+  }
+
   res.json({
     success: true,
-    message: "User is Authenticated",
+    username: user.username,
+    myRooms: user.myRooms,
+    recentRooms: user.recentRooms,
+  });
+};
+
+export const checkAuth = async (req, res) => {
+  res.json({
+    success: true,
+    message: "User is authenticated",
   });
 };
