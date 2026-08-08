@@ -60,8 +60,22 @@ export const registerSocket = (io, onlineUsers) => {
       });
     });
 
-    socket.on("codeChange", ({ roomId, code }) => {
-      socket.to(roomId).emit("codeChange", code);
+    socket.on("codeChange", (data) => {
+      socket.to(data.roomId).emit("codeChange", {
+        userId: socket.userId,
+        username: socket.username,
+        code: data.code,
+        line: data.cursor.line,
+        column: data.cursor.column,
+      });
+    });
+
+    socket.on("cursor-move", (data) => {
+      console.log(data);
+      socket.to(socket.roomId).emit("cursor-move", {
+        ...data,
+        username: socket.username,
+      });
     });
 
     socket.on("onlineUsers", ({ currentUsername }, callback) => {

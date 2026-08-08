@@ -13,6 +13,7 @@ import Input from "./Input";
 
 const CodeEditor = () => {
   const editorRef = useRef(null);
+  const monacoRef = useRef(null);
   const typingRef = useRef(null);
   const isEdited = useRef(false);
   const { roomId, fileName } = useParams();
@@ -30,6 +31,9 @@ const CodeEditor = () => {
   const [output, setOutput] = useState("Hello Output");
   const [hasError, setHasError] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
+
+  const cursorDecorations = useRef({});
+  const remoteCursors = useRef({});
 
   useEffect(() => {
     socket.emit("joinRoom", { roomId, username }, (response) => {
@@ -96,10 +100,19 @@ const CodeEditor = () => {
   useEffect(() => {
     if (!socket) return;
 
-    socket.on("codeChange", (code) => {
+    socket.on("codeChange", (data) => {
+      const editor = editorRef.current;
+
+      if (!editor) return;
+
       isEdited.current = true;
-      setCode(code);
+
+      editor.setValue(data.code);
+
       isEdited.current = false;
+
+      // Update the person who made the change
+      updateRemoteCursor(data);
     });
 
     socket.on("userJoined", ({ newUser }) => {
@@ -110,10 +123,29 @@ const CodeEditor = () => {
       userLeftToast(user);
     });
 
+    const handleCursorMove = (data) => {
+      console.log("Remote cursor:", data);
+
+      // Store the latest information
+      remoteCursors.current[data.userId] = {
+        username: data.username,
+        line: data.line,
+        column: data.column,
+      };
+
+      console.log(data);
+
+      // Update that user's decoration
+      updateRemoteCursor(data);
+    };
+
+    socket.on("cursor-move", handleCursorMove);
+
     return () => {
       socket.off("codeChange");
       socket.off("userJoined");
       socket.off("userLeft");
+      socket.off("cursor-move");
     };
   }, [socket]);
 
@@ -122,28 +154,97 @@ const CodeEditor = () => {
     socket.emit("onlineUsers", { currentUsername });
   };
 
-  const onMount = (editor) => {
+  const onMount = (editor, monaco) => {
     editorRef.current = editor;
+    monacoRef.current = monaco;
+
     editor.focus();
-    editorRef.current.onDidChangeModelContent(() => {
+
+    // ==========================
+    // CODE CHANGE
+    // ==========================
+    editor.onDidChangeModelContent(() => {
       if (isEdited.current) return;
 
       clearTimeout(typingRef.current);
+
       typingRef.current = setTimeout(() => {
+        const position = editor.getPosition();
+
         socket.emit("codeChange", {
           roomId,
-          code: editorRef.current.getValue(),
+          code: editor.getValue(),
+
+          cursor: position
+            ? {
+                line: position.lineNumber,
+                column: position.column,
+              }
+            : null,
         });
       }, 0);
     });
 
+    // ==========================
+    // LOCAL CURSOR
+    // ==========================
+    editor.onDidChangeCursorPosition((event) => {
+      console.log(event.position, "****");
+      const { lineNumber, column } = event.position;
+      console.log(lineNumber);
+
+      socket.emit("cursor-move", {
+        roomId,
+        line: lineNumber,
+        column,
+      });
+    });
+
+    // ==========================
+    // SAVE
+    // ==========================
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () =>
       handleSave(),
     );
 
+    // ==========================
+    // RUN
+    // ==========================
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () =>
       runCode(),
     );
+  };
+
+  const updateRemoteCursor = (data) => {
+    console.log(data, "*");
+
+    const editor = editorRef.current;
+    const monaco = monacoRef.current;
+
+    if (!editor || !monaco) return;
+
+    // Always use userId as the key
+    const oldDecoration = cursorDecorations.current[data.userId] || null;
+
+    const decoration = {
+      range: new monaco.Range(data.line, data.column, data.line, data.column),
+
+      options: {
+        beforeContentClassName: `remote-cursor cursor-${data.userId}`,
+
+        hoverMessage: {
+          value: `👤 **${data.username}**`,
+        },
+      },
+    };
+
+    const newDecorationIds = editor.deltaDecorations(
+      oldDecoration ? [oldDecoration] : [],
+      [decoration],
+    );
+
+    // Store using the SAME key
+    cursorDecorations.current[data.userId] = newDecorationIds[0];
   };
 
   const handleSave = async () => {
