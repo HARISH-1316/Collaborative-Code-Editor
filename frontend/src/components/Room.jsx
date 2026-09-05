@@ -2,7 +2,7 @@ import { Box, useToast } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import CodeEditor from "./CodeEditor";
 import File from "./File";
-import axios from "axios";
+import api from "../api";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSocket } from "../SocketContext";
 
@@ -31,8 +31,8 @@ const Room = ({ mode }) => {
 
     const fetchRoom = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:3000/editor/${roomId}/file/${urlFileName}`,
+        const response = await api.get(
+          `/editor/${roomId}/file/${urlFileName}`,
           {
             withCredentials: true,
           },
@@ -58,8 +58,8 @@ const Room = ({ mode }) => {
   const handleCreate = async () => {
     const url =
       mode === "create"
-        ? "http://localhost:3000/editor"
-        : `http://localhost:3000/editor/${roomId}/file/${urlFileName}/edit`;
+        ? "/editor"
+        : `/editor/${roomId}/file/${urlFileName}/edit`;
 
     // NEW
     setErrors({
@@ -75,7 +75,7 @@ const Room = ({ mode }) => {
 
       const response =
         mode === "create"
-          ? await axios.post(
+          ? await api.post(
               url,
               {
                 roomName,
@@ -86,7 +86,7 @@ const Room = ({ mode }) => {
                 withCredentials: true,
               },
             )
-          : await axios.patch(
+          : await api.patch(
               url,
               {
                 roomName,

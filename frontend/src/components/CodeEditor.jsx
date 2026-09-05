@@ -7,7 +7,7 @@ import { useSocket } from "../SocketContext";
 import { useEffect } from "react";
 import Navbar from "./Navbar";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import api from "../api";
 import FileInfo from "./FileInfo";
 import Input from "./Input";
 
@@ -52,10 +52,10 @@ const CodeEditor = () => {
 
   useEffect(() => {
     const getRoom = async () => {
-      const url = `http://localhost:3000/editor/${roomId}/file/${fileName}`;
+      const url = `/editor/${roomId}/file/${fileName}`;
 
       try {
-        const response = await axios.get(url, {
+        const response = await api.get(url, {
           withCredentials: true,
         });
 
@@ -249,9 +249,9 @@ const CodeEditor = () => {
 
   const handleSave = async () => {
     console.log("ab");
-    const url = `http://localhost:3000/editor/${roomId}/file/${fileName}`;
+    const url = `/editor/${roomId}/file/${fileName}`;
     try {
-      const response = await axios.post(
+      const response = await api.post(
         url,
         { code: editorRef.current.getValue() },
         {
@@ -313,14 +313,14 @@ const CodeEditor = () => {
   };
 
   const runCode = async () => {
-    const url = `http://localhost:3000/editor/${roomId}/execute`;
+    const url = `/editor/${roomId}/execute`;
 
     try {
       console.log("runCode");
       console.log(inputRef.current, "()");
 
       setIsRunning(true);
-      const response = await axios.post(
+      const response = await api.post(
         url,
         { input: inputRef.current },
         { withCredentials: true },

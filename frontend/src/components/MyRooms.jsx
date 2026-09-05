@@ -27,7 +27,7 @@ import {
   FiEdit2,
   FiTrash2,
 } from "react-icons/fi";
-import axios from "axios";
+import api from "../api";
 
 export const MyRooms = ({ rooms }) => {
   const navigate = useNavigate();
@@ -81,10 +81,10 @@ export const MyRooms = ({ rooms }) => {
   };
 
   const handleConfirmDelete = async () => {
-    const url = `http://localhost:3000/editor/${selectedRoom.roomId}/delete`;
+    const url = `/editor/${selectedRoom.roomId}/delete`;
 
     try {
-      const response = await axios.delete(url, {
+      const response = await api.delete(url, {
         withCredentials: true,
       });
 

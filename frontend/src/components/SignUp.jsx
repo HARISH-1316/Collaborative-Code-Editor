@@ -17,7 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../api";
 import { useAuth } from "../checkAuth";
 
 const SignUp = () => {
@@ -95,10 +95,10 @@ const SignUp = () => {
       return;
     }
 
-    const url = "http://localhost:3000/auth/signup";
+    const url = "/auth/signup";
 
     try {
-      const response = await axios.post(url, user, {
+      const response = await api.post(url, user, {
         withCredentials: true,
       });
 

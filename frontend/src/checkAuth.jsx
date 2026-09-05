@@ -1,5 +1,5 @@
 import { useToast } from "@chakra-ui/react";
-import axios from "axios";
+import api from "./api";
 import {
   createContext,
   useContext,
@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = useCallback(async () => {
     try {
-      const response = await axios.get("http://localhost:3000/checkAuth", {
+      const response = await api.get("/checkAuth", {
         withCredentials: true,
       });
 
@@ -47,8 +47,8 @@ export const AuthProvider = ({ children }) => {
 
   const authLogout = async () => {
     try {
-      await axios.post(
-        "http://localhost:3000/auth/logout",
+      await api.post(
+        "/auth/logout",
         {},
         {
           withCredentials: true,

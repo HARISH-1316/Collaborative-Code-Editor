@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../api";
 import {
   Box,
   Flex,
@@ -28,7 +28,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const { data } = await axios.get("http://localhost:3000/auth/me", {
+        const { data } = await api.get("/auth/me", {
           withCredentials: true,
         });
 
@@ -62,7 +62,7 @@ const Dashboard = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.get("http://localhost:3000/auth/logout", {
+      await api.get("/auth/logout", {
         withCredentials: true,
       });
     } catch (err) {
