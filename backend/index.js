@@ -1,6 +1,7 @@
 import { createServer } from "node:http";
 import express from "express";
 import { Server } from "socket.io";
+import "dotenv/config";
 
 const app = express();
 const server = createServer(app);
@@ -19,7 +20,7 @@ app.use(
 
 // Mongoose
 import mongoose from "mongoose";
-const DB_URL = "mongodb://127.0.0.1:27017/cce";
+const DB_URL = process.env.ATLASDB_URL;
 mongoose
   .connect(DB_URL)
   .then(() => console.log("MongoDB connected successfully!"))
