@@ -22,7 +22,7 @@ export const runDocker = async (input, workspacePath, imageName, command) => {
       "-c",
       command,
     ]);
-    console.log("*****");
+    // console.log("*****");
 
     let timeOut = false;
     const timer = setTimeout(() => {
@@ -30,32 +30,32 @@ export const runDocker = async (input, workspacePath, imageName, command) => {
       docker.kill();
     }, 5000);
 
-    console.log(input.length, "(*)");
+    // console.log(input.length, "(*)");
 
     if (input.length > 0) {
       docker.stdin.write(input);
-      console.log("))((");
+      // console.log("))((");
     }
 
     docker.stdin.end();
 
-    console.log("()()");
+    // console.log("()()");
 
     let stdout = "";
     let stderr = "";
 
     docker.stdout.on("data", (data) => {
-      console.log("((");
+      // console.log("((");
       stdout += data.toString();
     });
 
     docker.stderr.on("data", (data) => {
-      console.log("))");
+      // console.log("))");
       stderr += data.toString();
     });
 
     console.log(stdout);
-    console.log("((");
+    // console.log("((");
 
     docker.on("close", (code, signal) => {
       clearTimeout(timer);

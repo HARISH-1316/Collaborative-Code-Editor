@@ -11,9 +11,11 @@ const onlineUsers = new Map();
 
 // CORS
 import cors from "cors";
+const FRONTEND_URL = process.env.FRONTEND_URL;
+
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: FRONTEND_URL,
     credentials: true,
   }),
 );
@@ -51,7 +53,7 @@ app.use(sessionMiddleware);
 import { registerSocket } from "./socket/socket.js";
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: FRONTEND_URL,
     credentials: true,
   },
 });
@@ -91,6 +93,6 @@ app.get("/", (req, res) => {
   res.send("Hello World");
 });
 
-server.listen(port, () => {
+server.listen(port, "0.0.0.0", () => {
   console.log(`Server is listening to ${port}`);
 });
