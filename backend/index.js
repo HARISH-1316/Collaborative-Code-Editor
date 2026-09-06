@@ -35,6 +35,8 @@ app.use(express.json());
 // Sessions
 import session from "express-session";
 
+app.set("trust proxy", 1);
+
 const sessionOptions = {
   secret: "mySecretCode",
   resave: false,
