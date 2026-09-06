@@ -38,7 +38,7 @@ import session from "express-session";
 app.set("trust proxy", 1);
 
 const sessionOptions = {
-  secret: "mySecretCode",
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
