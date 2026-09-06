@@ -2,6 +2,7 @@ import { createServer } from "node:http";
 import express from "express";
 import { Server } from "socket.io";
 import "dotenv/config";
+import MongoStore from "connect-mongo";
 
 const app = express();
 const server = createServer(app);
@@ -38,13 +39,18 @@ import session from "express-session";
 app.set("trust proxy", 1);
 
 const sessionOptions = {
-  secret: process.env.SESSION_SECRET,
+  secret: "mySecretCode",
   resave: false,
   saveUninitialized: false,
+
+  store: MongoStore.create({
+    mongoUrl: process.env.ATLASDB_URL,
+    collectionName: "sessions",
+  }),
+
   cookie: {
     secure: true,
     sameSite: "none",
-    expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
   },
 };
