@@ -38,9 +38,10 @@ import session from "express-session";
 const sessionOptions = {
   secret: "mySecretCode",
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: {
-    secure: false,
+    secure: true,
+    sameSite: "none",
     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
   },
